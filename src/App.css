@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #22c55e;
+  --color-primary-600: #16a34a;
+  --color-primary-700: #15803d;
+  --color-primary-800: #166534;
+  --color-primary-900: #14532d;
+
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', system-ui,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 min-h-[48px] shadow-lg hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-primary-100 hover:bg-primary-200 active:bg-primary-300 text-primary-700 font-semibold py-3 px-6 rounded-xl transition-all duration-200 min-h-[48px] shadow-md hover:shadow-lg active:scale-[0.98];
+  }
+
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 min-h-[48px] shadow-lg hover:shadow-xl active:scale-[0.98];
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary-200 hover:border-primary-300 hover:bg-primary-50 bg-white text-primary-700 font-semibold py-3 px-6 rounded-xl transition-all duration-200 min-h-[48px] shadow-md hover:shadow-lg active:scale-[0.98];
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-gray-100 p-5 hover:shadow-lg transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-0 focus:outline-none transition-colors duration-200 text-gray-800 placeholder-gray-400;
+  }
+
+  .gradient-bg {
+    @apply bg-gradient-to-br from-primary-500 via-primary-600 to-emerald-600;
+  }
+
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-lg border border-white/20;
+  }
+}
