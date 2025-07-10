@@ -113,7 +113,7 @@ export const mockParkingApi = {
   getMyData: () => Promise.resolve(mockMyData),
   getEmployeeOfMonth: () => Promise.resolve(mockEmployeeOfMonth),
 
-  createHelpRequest: (data: any) => {
+  createHelpRequest: (_data: any) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         const currentUser = getCurrentUser();
@@ -134,7 +134,7 @@ export const mockParkingApi = {
     });
   },
 
-  createHelpOffer: (data: any) => {
+  createHelpOffer: (_data: any) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         const currentUser = getCurrentUser();
@@ -246,7 +246,7 @@ export const mockParkingApi = {
     });
   },
 
-  updateProfile: (data: any) => {
+  updateProfile: (_data: any) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ success: true });
@@ -254,7 +254,7 @@ export const mockParkingApi = {
     });
   },
 
-  login: (employeeNumber: string, password: string) => {
+  login: (_employeeNumber: string, _password: string) => {
     return Promise.resolve({ success: true });
   },
 
