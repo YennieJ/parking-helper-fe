@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './lib/queryClient'; // 이미 만든 queryClient 가져오기
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
-import { env, validateEnv } from './config/env';
+import { env } from './config/env';
 import Navigation from './components/Navigation';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
@@ -41,9 +41,6 @@ const AppContent: React.FC = () => {
 
 function App() {
   useEffect(() => {
-    // 앱 시작 시 환경변수 검증
-    validateEnv();
-
     // 앱 제목 설정
     document.title = env.APP_TITLE;
   }, []);

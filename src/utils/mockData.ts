@@ -1,6 +1,3 @@
-// src/utils/mockData.ts
-import { env } from '../config/env';
-
 // 타입 정의
 type Status = 'waiting' | 'reserved' | 'completed';
 
@@ -262,17 +259,4 @@ export const mockParkingApi = {
   },
 
   healthCheck: () => Promise.resolve({ status: 'ok' }),
-};
-
-// 환경에 따라 실제 API 또는 목업 API 선택
-export const getApiClient = () => {
-  // 개발 환경에서는 목업 API 사용
-  if (env.IS_DEVELOPMENT) {
-    console.log('🔧 목업 API 사용 중...');
-    return mockParkingApi;
-  }
-
-  // 프로덕션에서는 실제 API 사용
-  const { parkingApi } = require('../api/parkingApi');
-  return parkingApi;
 };
