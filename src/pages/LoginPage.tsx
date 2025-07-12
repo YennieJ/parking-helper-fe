@@ -10,19 +10,23 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
     if (!employeeNumber) {
       setError('사원번호를 입력해주세요.');
       return;
     }
 
-    const success = await login(employeeNumber);
-    if (success) {
-      // 로그인 성공 시 홈으로 이동
-      navigate('/', { replace: true });
-    } else {
-      setError('사원번호가 올바르지 않습니다.');
+    try {
+      const success = await login(employeeNumber);
+
+      if (success) {
+        // 로그인 성공 시 홈으로 이동
+        navigate('/', { replace: true });
+      } else {
+        setError('사원번호가 올바르지 않습니다.');
+      }
+    } catch (error) {
+      setError('로그인 중 오류가 발생했습니다.');
     }
   };
 
@@ -52,24 +56,16 @@ const LoginPage: React.FC = () => {
                 value={employeeNumber}
                 onChange={(e) => setEmployeeNumber(e.target.value)}
                 className="input-field"
-                placeholder="EMP001"
+                placeholder="사원번호를 입력해주세요."
                 disabled={isLoading}
               />
+              <p className="text-red-700 font-medium mt-2">{error}</p>
             </div>
-
-            {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
-                <div className="flex">
-                  <span className="text-red-500 mr-2">⚠️</span>
-                  <p className="text-red-700 text-sm">{error}</p>
-                </div>
-              </div>
-            )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary w-full text-lg"
+              className="btn-primary w-full text-lg cursor-pointer"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -89,10 +85,7 @@ const LoginPage: React.FC = () => {
             </h3>
             <div className="text-xs text-primary-700 space-y-1">
               <div>• 사원번호: EMP001 ~ EMP005</div>
-              <div>• 비밀번호: 1234</div>
-              <div className="text-primary-600 mt-2">
-                예: EMP001 / 1234 (김철수)
-              </div>
+              <div className="text-primary-600 mt-2">예: EMP001 (김철수)</div>
             </div>
           </div>
         </div>

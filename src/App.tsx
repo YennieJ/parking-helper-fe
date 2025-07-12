@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { queryClient } from './lib/queryClient'; // 이미 만든 queryClient 가져오기
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { queryClient } from './lib/queryClient';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
 import { env } from './config/env';
@@ -17,12 +17,17 @@ import './App.css';
 const AppContent: React.FC = () => {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
   if (!user) {
-    return <LoginPage />;
+    return (
+      <div className="relative">
+        <LoginPage />
+        {isLoading && (
+          <div className="absolute inset-0 z-50">
+            <LoadingScreen />
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -55,7 +60,7 @@ function App() {
         </AuthProvider>
       </ToastProvider>
       {/* 개발 중에만 표시되는 React Query 개발자 도구 */}
-      {env.IS_DEVELOPMENT && <ReactQueryDevtools />}
+      {/* {env.IS_DEVELOPMENT && <ReactQueryDevtools />} */}
     </QueryClientProvider>
   );
 }

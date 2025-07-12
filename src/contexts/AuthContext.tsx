@@ -5,6 +5,7 @@ interface User {
   employeeNumber: string;
   name: string;
   carNumber: string;
+  email: string;
 }
 
 interface AuthContextType {
@@ -18,41 +19,41 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // 임시 사용자 데이터 (실제로는 API에서 가져와야 함)
-const MOCK_USERS: (User & { password: string })[] = [
+const MOCK_USERS: User[] = [
   {
     id: '1',
     employeeNumber: 'EMP001',
-    password: '1234',
     name: '김철수',
     carNumber: '12가 3456',
+    email: 'kim.chulsoo@company.com',
   },
   {
     id: '2',
     employeeNumber: 'EMP002',
-    password: '1234',
     name: '이영희',
     carNumber: '34나 1234',
+    email: 'lee.younghee@company.com',
   },
   {
     id: '3',
     employeeNumber: 'EMP003',
-    password: '1234',
     name: '박민수',
     carNumber: '56다 7890',
+    email: 'park.minsu@company.com',
   },
   {
     id: '4',
     employeeNumber: 'EMP004',
-    password: '1234',
     name: '정수민',
     carNumber: '78라 5678',
+    email: 'jung.sumin@company.com',
   },
   {
     id: '5',
     employeeNumber: 'EMP005',
-    password: '1234',
     name: '최영수',
     carNumber: '90마 9012',
+    email: 'choi.youngsu@company.com',
   },
 ];
 
@@ -86,9 +87,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 
     if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('parking_user', JSON.stringify(userWithoutPassword));
+      setUser(foundUser);
+      localStorage.setItem('parking_user', JSON.stringify(foundUser));
       setIsLoading(false);
       return true;
     }

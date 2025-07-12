@@ -11,6 +11,7 @@ interface HelpRequest {
   reservedBy?: string;
   reservedById?: string;
   reservedByCarNumber?: string; // 예약자의 차량번호 (offer에서만 사용하지만 타입 통일)
+  userEmail?: string; // Slack 멘션용 이메일
 }
 
 interface HelpOffer {
@@ -22,6 +23,7 @@ interface HelpOffer {
   reservedBy?: string;
   reservedById?: string;
   reservedByCarNumber?: string;
+  userEmail?: string; // Slack 멘션용 이메일
 }
 
 // 임시 목업 데이터
@@ -33,6 +35,7 @@ export const mockHelpRequests: HelpRequest[] = [
     createdAt: '08:30',
     status: 'waiting',
     isOwner: true,
+    userEmail: 'kim.chulsoo@company.com',
   },
   {
     id: '2',
@@ -43,6 +46,7 @@ export const mockHelpRequests: HelpRequest[] = [
     reservedBy: '이영희',
     reservedById: '2',
     isOwner: false,
+    userEmail: 'park.minsu@company.com',
   },
   {
     id: '3',
@@ -51,6 +55,7 @@ export const mockHelpRequests: HelpRequest[] = [
     createdAt: '08:40',
     status: 'waiting',
     isOwner: false,
+    userEmail: 'jung.sumin@company.com',
   },
 ];
 
@@ -61,6 +66,7 @@ export const mockHelpOffers: HelpOffer[] = [
     createdAt: '08:40',
     status: 'waiting',
     isOwner: false,
+    userEmail: 'lee.younghee@company.com',
   },
   {
     id: '2',
@@ -71,6 +77,7 @@ export const mockHelpOffers: HelpOffer[] = [
     reservedById: '1',
     reservedByCarNumber: '12가 3456', // 예약자의 차량번호 추가
     isOwner: true,
+    userEmail: 'jung.sumin@company.com',
   },
 ];
 
@@ -103,6 +110,7 @@ const getCurrentUser = () => {
     id: user.id || '1',
     name: user.name || '김철수',
     carNumber: user.carNumber || '12가 3456',
+    email: user.email || 'kim.chulsoo@company.com',
   };
 };
 
@@ -127,6 +135,7 @@ export const mockParkingApi = {
           }),
           status: 'waiting',
           isOwner: true,
+          userEmail: currentUser.email,
         };
         mockHelpRequests.unshift(newRequest);
         resolve(newRequest);
@@ -147,6 +156,7 @@ export const mockParkingApi = {
           }),
           status: 'waiting',
           isOwner: true,
+          userEmail: currentUser.email,
         };
         mockHelpOffers.unshift(newOffer);
         resolve(newOffer);
