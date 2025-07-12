@@ -32,7 +32,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex-1 pb-20">
+      <div className="flex-1 pb-20 ">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/my-page" element={<MyPage />} />

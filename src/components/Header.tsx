@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({
     <div
       className={`bg-white/80 backdrop-blur-lg border-b border-gray-200/50 px-4 py-4 shadow-sm h-16 flex items-center ${className}`}
     >
-      <div className="flex items-center justify-between w-full">
+      <div className="flex items-center justify-between w-full md:justify-center">
         <div className="flex items-center gap-3">
           {icon && <span className="text-xl">{icon}</span>}
           <div className="flex flex-col justify-center">

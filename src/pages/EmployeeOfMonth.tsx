@@ -43,7 +43,7 @@ const EmployeeOfMonth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gradient-to-br from-gray-50 to-primary-50">
       {/* 헤더 */}
       <Header
         title={`${getCurrentMonth()} 이달의 사원`}
@@ -51,7 +51,7 @@ const EmployeeOfMonth: React.FC = () => {
         subtitle="주차 도움을 가장 많이 완료한 직원들입니다"
       />
 
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4  md:max-w-[700px] mx-auto">
         {rankings.map((employee) => (
           <div
             key={employee.rank}

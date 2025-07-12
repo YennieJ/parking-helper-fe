@@ -244,8 +244,8 @@ const HomePage: React.FC = () => {
       <Header title={getCurrentDateTime()} icon="📅" />
 
       {/* 탭 네비게이션 */}
-      <div className="bg-white/60 backdrop-blur-lg border-b border-gray-200/50 px-4 py-3 mt-1">
-        <div className="flex space-x-1 bg-gray-100 rounded-xl p-1">
+      <div className="px-4 py-3">
+        <div className="flex space-x-1 bg-gray-200 rounded-xl p-2 mt-1 md:max-w-[700px] mx-auto">
           <button
             onClick={() => setActiveTab('request')}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${
@@ -269,7 +269,7 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 md:max-w-[700px] mx-auto">
         {/* 차량 등록 요청하기 탭 */}
         {activeTab === 'request' && (
           <RequestSection

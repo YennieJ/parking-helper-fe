@@ -53,7 +53,7 @@ const MyPage: React.FC = () => {
         }}
       />
 
-      <div className="p-3">
+      <div className="p-3 md:max-w-[700px] mx-auto">
         {/* 사용자 프로필 카드 */}
         <div className="card">
           {/* 헤더 */}
