@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useMember } from '../hooks/useMember';
 
 interface User {
   id: string;
@@ -18,50 +19,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 임시 사용자 데이터 (실제로는 API에서 가져와야 함)
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    employeeNumber: 'EMP001',
-    name: '김철수',
-    carNumber: '12가 3456',
-    email: 'kim.chulsoo@company.com',
-  },
-  {
-    id: '2',
-    employeeNumber: 'EMP002',
-    name: '이영희',
-    carNumber: '34나 1234',
-    email: 'lee.younghee@company.com',
-  },
-  {
-    id: '3',
-    employeeNumber: 'EMP003',
-    name: '박민수',
-    carNumber: '56다 7890',
-    email: 'park.minsu@company.com',
-  },
-  {
-    id: '4',
-    employeeNumber: 'EMP004',
-    name: '정수민',
-    carNumber: '78라 5678',
-    email: 'jung.sumin@company.com',
-  },
-  {
-    id: '5',
-    employeeNumber: 'EMP005',
-    name: '최영수',
-    carNumber: '90마 9012',
-    email: 'choi.youngsu@company.com',
-  },
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const memberMutation = useMember();
 
   useEffect(() => {
     // 페이지 로드 시 저장된 로그인 정보 확인
@@ -77,24 +40,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const login = async (employeeNumber: string): Promise<boolean> => {
-    setIsLoading(true);
+    try {
+      const result = await memberMutation.mutateAsync({
+        memberId: employeeNumber,
+      });
 
-    // 실제 API 호출 시뮬레이션 (1초 지연)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (result.Result === 'Success') {
+        // API 응답을 프론트엔드 형식으로 변환
+        const userData = {
+          id: result.Id.toString(),
+          employeeNumber: result.MemberLoginId,
+          name: result.MemberName,
+          carNumber: result.Cars?.[0]?.carNumber || '',
+          email: result.Email,
+        };
 
-    const foundUser = MOCK_USERS.find(
-      (u) => u.employeeNumber === employeeNumber
-    );
+        setUser(userData);
+        localStorage.setItem('parking_user', JSON.stringify(userData));
+        return true;
+      }
 
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem('parking_user', JSON.stringify(foundUser));
-      setIsLoading(false);
-      return true;
+      return false;
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      return false;
     }
-
-    setIsLoading(false);
-    return false;
   };
 
   const logout = () => {
@@ -112,7 +82,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, logout, updateUser }}
+      value={{
+        user,
+        isLoading: isLoading || memberMutation.isPending,
+        login,
+        logout,
+        updateUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

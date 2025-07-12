@@ -1,5 +1,5 @@
 // HomePage에서 React Query 사용 예시
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   useHelpRequests,
   useHelpOffers,
@@ -15,6 +15,7 @@ import {
   useDeleteHelpOffer,
   useCancelReservation,
 } from '../hooks/useParkingData';
+import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import RequestSection from '../components/RequestSection';
 import OfferSection from '../components/OfferSection';
@@ -25,6 +26,24 @@ const HomePage: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'request' | 'offer'>('request');
+
+  // AuthContext에서 로그인된 사용자 정보 가져오기
+  const { user } = useAuth();
+
+  // 로그인된 사용자 정보를 콘솔에 출력
+  useEffect(() => {
+    if (user) {
+      console.log('=== 로그인된 사용자 정보 ===');
+      console.log('ID:', user.id);
+      console.log('사원번호:', user.employeeNumber);
+      console.log('이름:', user.name);
+      console.log('차량번호:', user.carNumber);
+      console.log('이메일:', user.email);
+      console.log('========================');
+    } else {
+      console.log('로그인된 사용자가 없습니다.');
+    }
+  }, [user]);
 
   // React Query 훅들
   const {
