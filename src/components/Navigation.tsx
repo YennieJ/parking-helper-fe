@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -15,6 +16,13 @@ const Navigation: React.FC = () => {
   const handleLogout = () => {
     logout();
     setShowLogoutModal(false);
+  };
+
+  const handleNavigation = (path: string) => {
+    // 스크롤을 최상단으로 이동
+    window.scrollTo(0, 0);
+    // 페이지 이동
+    navigate(path);
   };
 
   const navItems = [
@@ -43,9 +51,9 @@ const Navigation: React.FC = () => {
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           ) : (
-            <Link
+            <button
               key={item.path}
-              to={item.path}
+              onClick={() => handleNavigation(item.path)}
               className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 ${
                 location.pathname === item.path
                   ? 'bg-primary-500 text-white shadow-lg transform scale-105'
@@ -54,7 +62,7 @@ const Navigation: React.FC = () => {
             >
               <span className="text-lg mb-1">{item.icon}</span>
               <span className="text-xs font-medium">{item.label}</span>
-            </Link>
+            </button>
           )
         )}
       </div>

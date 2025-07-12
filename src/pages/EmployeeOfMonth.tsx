@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from '../components/Header';
 
 const EmployeeOfMonth: React.FC = () => {
   // 임시 랭킹 데이터
@@ -44,14 +45,11 @@ const EmployeeOfMonth: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4">
-        <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          🏆 {getCurrentMonth()} 이달의 사원
-        </h1>
-        <p className="text-sm text-gray-600 mt-1">
-          주차 도움을 가장 많이 완료한 직원들입니다
-        </p>
-      </div>
+      <Header
+        title={`${getCurrentMonth()} 이달의 사원`}
+        icon="🏆"
+        subtitle="주차 도움을 가장 많이 완료한 직원들입니다"
+      />
 
       <div className="p-4 space-y-4">
         {rankings.map((employee) => (
@@ -89,37 +87,13 @@ const EmployeeOfMonth: React.FC = () => {
               <div className="mt-3 pt-3 border-t border-yellow-300">
                 <div className="text-center">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-400 text-yellow-900">
-                    🎉 이달의 최고 도우미 🎉
+                    🎉 이달의 최고 주차 도움 완료자 🎉
                   </span>
                 </div>
               </div>
             )}
           </div>
         ))}
-
-        {/* 통계 정보 */}
-        <div className="card mt-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            📈 이달의 통계
-          </h3>
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">
-                {rankings.reduce((sum, emp) => sum + emp.completedCount, 0)}
-              </div>
-              <div className="text-sm text-gray-600">총 완료 건수</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">
-                {Math.round(
-                  rankings.reduce((sum, emp) => sum + emp.completedCount, 0) /
-                    rankings.length
-                )}
-              </div>
-              <div className="text-sm text-gray-600">평균 완료 건수</div>
-            </div>
-          </div>
-        </div>
 
         {/* 격려 메시지 */}
         <div className="card bg-blue-50 border-blue-200">

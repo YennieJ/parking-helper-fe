@@ -15,9 +15,9 @@ import {
   useDeleteHelpOffer,
   useCancelReservation,
 } from '../hooks/useParkingData';
-import { MESSAGES } from '../utils/messages';
-import HelpRequestCard from '../components/HelpRequestCard';
-import HelpOfferCard from '../components/HelpOfferCard';
+import Header from '../components/Header';
+import RequestSection from '../components/RequestSection';
+import OfferSection from '../components/OfferSection';
 import AddRequestModal from '../components/AddRequestModal';
 import AddOfferModal from '../components/AddOfferModal';
 
@@ -239,17 +239,12 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50">
+    <div className="bg-gradient-to-br from-gray-50 to-primary-50">
       {/* 헤더 */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 px-4 py-6 shadow-sm">
-        <div className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span className="text-2xl">📅</span>
-          {getCurrentDateTime()}
-        </div>
-      </div>
+      <Header title={getCurrentDateTime()} icon="📅" />
 
       {/* 탭 네비게이션 */}
-      <div className="bg-white/60 backdrop-blur-lg border-b border-gray-200/50 px-4 py-3">
+      <div className="bg-white/60 backdrop-blur-lg border-b border-gray-200/50 px-4 py-3 mt-1">
         <div className="flex space-x-1 bg-gray-100 rounded-xl p-1">
           <button
             onClick={() => setActiveTab('request')}
@@ -259,7 +254,6 @@ const HomePage: React.FC = () => {
                 : 'text-gray-600 hover:text-red-600'
             }`}
           >
-            <span className="text-lg">🆘</span>
             차량 등록 요청하기 ({helpRequests?.length || 0})
           </button>
           <button
@@ -270,7 +264,6 @@ const HomePage: React.FC = () => {
                 : 'text-gray-600 hover:text-primary-600'
             }`}
           >
-            <span className="text-lg">🙋‍♂️</span>
             차량 등록 도와주기 ({helpOffers?.length || 0})
           </button>
         </div>
@@ -279,96 +272,31 @@ const HomePage: React.FC = () => {
       <div className="p-4">
         {/* 차량 등록 요청하기 탭 */}
         {activeTab === 'request' && (
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <span className="text-xl">🆘</span>
-                차량 등록 요청하기
-              </h2>
-              <button
-                onClick={handleAddRequest}
-                disabled={createRequest.isPending}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
-              >
-                {createRequest.isPending ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  '+ 추가'
-                )}
-              </button>
-            </div>
-            <div className="space-y-3">
-              {helpRequests?.map((request: any) => (
-                <HelpRequestCard
-                  key={request.id}
-                  request={request}
-                  onAccept={() =>
-                    handleAccept(request.id, {
-                      carNumber: request.carNumber,
-                      userName: request.userName,
-                    })
-                  }
-                  onMarkComplete={() => handleMarkCompleteRequest(request.id)}
-                  onRemove={() => handleRemoveRequest(request.id)}
-                  onCancelAcceptance={() => handleCancelAcceptance(request.id)}
-                  loadingState={getRequestLoadingState(request.id)}
-                />
-              ))}
-              {(!helpRequests || helpRequests.length === 0) && (
-                <div className="card text-center py-8">
-                  <div className="text-4xl mb-2">🤷‍♂️</div>
-                  <p className="text-gray-500">
-                    {MESSAGES.HELP_REQUEST.EMPTY_STATE}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+          <RequestSection
+            helpRequests={helpRequests || []}
+            onAddRequest={handleAddRequest}
+            onAccept={handleAccept}
+            onMarkComplete={handleMarkCompleteRequest}
+            onRemove={handleRemoveRequest}
+            onCancelAcceptance={handleCancelAcceptance}
+            loadingState={getRequestLoadingState}
+            isCreating={createRequest.isPending}
+          />
         )}
 
         {/* 차량 등록 도와주기 탭 */}
         {activeTab === 'offer' && (
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <span className="text-xl">🙋‍♂️</span>
-                차량 등록 도와주기
-              </h2>
-              <button
-                onClick={handleAddOffer}
-                disabled={createOffer.isPending}
-                className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
-              >
-                {createOffer.isPending ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  '+ 추가'
-                )}
-              </button>
-            </div>
-            <div className="space-y-3">
-              {helpOffers?.map((offer: any) => (
-                <HelpOfferCard
-                  key={offer.id}
-                  offer={offer}
-                  onRequest={() => handleRequest(offer.id)}
-                  onConfirm={() => handleConfirm(offer.id)}
-                  onMarkComplete={() => handleMarkCompleteOffer(offer.id)}
-                  onRemove={() => handleRemoveOffer(offer.id)}
-                  onCancelRequest={() => handleCancelRequest(offer.id)}
-                  loadingState={getOfferLoadingState(offer.id)}
-                />
-              ))}
-              {(!helpOffers || helpOffers.length === 0) && (
-                <div className="card text-center py-8">
-                  <div className="text-4xl mb-2">🤷‍♀️</div>
-                  <p className="text-gray-500">
-                    {MESSAGES.HELP_OFFER.EMPTY_STATE}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+          <OfferSection
+            helpOffers={helpOffers || []}
+            onAddOffer={handleAddOffer}
+            onRequest={handleRequest}
+            onConfirm={handleConfirm}
+            onMarkComplete={handleMarkCompleteOffer}
+            onRemove={handleRemoveOffer}
+            onCancelRequest={handleCancelRequest}
+            loadingState={getOfferLoadingState}
+            isCreating={createOffer.isPending}
+          />
         )}
       </div>
 
