@@ -10,7 +10,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (employeeNumber: string, password: string) => Promise<boolean>;
+  login: (employeeNumber: string) => Promise<boolean>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
 }
@@ -75,17 +75,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(false);
   }, []);
 
-  const login = async (
-    employeeNumber: string,
-    password: string
-  ): Promise<boolean> => {
+  const login = async (employeeNumber: string): Promise<boolean> => {
     setIsLoading(true);
 
     // 실제 API 호출 시뮬레이션 (1초 지연)
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const foundUser = MOCK_USERS.find(
-      (u) => u.employeeNumber === employeeNumber && u.password === password
+      (u) => u.employeeNumber === employeeNumber
     );
 
     if (foundUser) {

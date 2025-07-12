@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
   const [employeeNumber, setEmployeeNumber] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -13,17 +12,17 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!employeeNumber || !password) {
-      setError('사원번호와 비밀번호를 입력해주세요.');
+    if (!employeeNumber) {
+      setError('사원번호를 입력해주세요.');
       return;
     }
 
-    const success = await login(employeeNumber, password);
+    const success = await login(employeeNumber);
     if (success) {
       // 로그인 성공 시 홈으로 이동
       navigate('/', { replace: true });
     } else {
-      setError('사원번호 또는 비밀번호가 올바르지 않습니다.');
+      setError('사원번호가 올바르지 않습니다.');
     }
   };
 
@@ -54,20 +53,6 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setEmployeeNumber(e.target.value)}
                 className="input-field"
                 placeholder="EMP001"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                비밀번호
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
-                placeholder="비밀번호를 입력하세요"
                 disabled={isLoading}
               />
             </div>
