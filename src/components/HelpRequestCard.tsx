@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { MESSAGES } from '../utils/messages';
+import {
+  RequestStatus,
+  getRequestStatusText,
+  getRequestStatusColor,
+} from '../types/requestStatus';
+import type { RequestStatusType } from '../types/requestStatus';
 import CompleteConfirmationModal from './CompleteConfirmationModal';
-
-interface HelpRequest {
-  id: string;
-  userName: string;
-  carNumber: string;
-  createdAt: string;
-  status: 'waiting' | 'reserved' | 'completed';
-  reservedBy?: string;
-  reservedById?: string;
-  isOwner: boolean;
-  userEmail?: string;
-}
+import type { RequestHelp } from '../hooks/useRequestHelp';
+import { formatToKoreanTime } from '../utils/formatToKoreanTime';
 
 interface Props {
-  request: HelpRequest;
+  request: RequestHelp;
   onAccept: () => void;
   onMarkComplete: () => void;
   onRemove: () => void;
@@ -40,9 +35,13 @@ const HelpRequestCard: React.FC<Props> = ({
   const { user } = useAuth();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const isAcceptedByMe = request.reservedById === user?.id;
-  const canMarkComplete = request.status === 'reserved' && isAcceptedByMe;
-  const canCancelAcceptance = request.status === 'reserved' && isAcceptedByMe;
+  // yen: 타입 확인 요청함
+  const isOwner = String(request.helpReqMemId) === String(user?.id);
+  const isAcceptedByMe = String(request.helperMemId) === String(user?.id);
+  const canMarkComplete =
+    request.status === RequestStatus.RESERVED && isAcceptedByMe;
+  const canCancelAcceptance =
+    request.status === RequestStatus.RESERVED && isAcceptedByMe;
 
   const handleCompleteClick = () => {
     setShowCompleteModal(true);
@@ -54,7 +53,7 @@ const HelpRequestCard: React.FC<Props> = ({
   };
 
   const renderButtons = () => {
-    if (request.status === 'completed') {
+    if (request.status === RequestStatus.COMPLETED) {
       return (
         <div className="flex items-center justify-center py-2">
           <div className="flex items-center gap-2 text-sm text-green-700 font-medium bg-green-50 px-3 py-2 rounded-xl border border-green-200">
@@ -65,12 +64,12 @@ const HelpRequestCard: React.FC<Props> = ({
       );
     }
 
-    if (request.status === 'reserved') {
+    if (request.status === RequestStatus.RESERVED) {
       return (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-700 font-medium bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
-              📝 {request.reservedBy}님이 수락
+              📝 {request.helper}님이 수락
             </span>
           </div>
 
@@ -116,7 +115,7 @@ const HelpRequestCard: React.FC<Props> = ({
     // waiting 상태
     return (
       <div className="flex gap-2">
-        {!request.isOwner && (
+        {!isOwner && (
           <button
             onClick={onAccept}
             disabled={loadingState.isAccepting}
@@ -133,7 +132,7 @@ const HelpRequestCard: React.FC<Props> = ({
           </button>
         )}
 
-        {request.isOwner && (
+        {isOwner && (
           <button
             onClick={onRemove}
             disabled={loadingState.isRemoving}
@@ -154,29 +153,11 @@ const HelpRequestCard: React.FC<Props> = ({
   };
 
   const getStatusColor = () => {
-    switch (request.status) {
-      case 'waiting':
-        return 'bg-white text-yellow-600 border-yellow-300';
-      case 'reserved':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
+    return getRequestStatusColor(request.status as RequestStatusType);
   };
 
   const getStatusText = () => {
-    switch (request.status) {
-      case 'waiting':
-        return MESSAGES.STATUS.WAITING;
-      case 'reserved':
-        return MESSAGES.STATUS.HELPING;
-      case 'completed':
-        return MESSAGES.STATUS.COMPLETED;
-      default:
-        return MESSAGES.STATUS.UNKNOWN;
-    }
+    return getRequestStatusText(request.status as RequestStatusType);
   };
 
   return (
@@ -189,13 +170,13 @@ const HelpRequestCard: React.FC<Props> = ({
             </div>
             <div>
               <div className="font-semibold text-gray-800">
-                {request.userName}
+                {request.helpRequester}
               </div>
               <div className="text-primary-600 font-medium text-sm">
                 {request.carNumber}
               </div>
               <div className="text-xs text-gray-500">
-                {request.createdAt} 등록
+                {formatToKoreanTime(request.reqDate)} 등록
               </div>
             </div>
           </div>
@@ -213,7 +194,7 @@ const HelpRequestCard: React.FC<Props> = ({
       {/* 완료 확인 모달 */}
       {showCompleteModal && (
         <CompleteConfirmationModal
-          requesterName={request.userName}
+          requesterName={request.helpRequester}
           carNumber={request.carNumber}
           onConfirm={handleCompleteConfirm}
           onCancel={() => setShowCompleteModal(false)}

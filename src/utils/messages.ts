@@ -77,7 +77,6 @@ export const MESSAGES = {
     REQUESTED: '도움 요청 확인 중',
     IN_PROGRESS: '도움 진행 중',
     COMPLETED: '도움 완료',
-
     UNKNOWN: '알 수 없음',
   },
 } as const;

@@ -1,12 +1,10 @@
 // HomePage에서 React Query 사용 예시
 import React, { useState, useEffect } from 'react';
 import {
-  useHelpRequests,
   useHelpOffers,
   useCreateHelpRequest,
   useCreateHelpOffer,
   useReserveHelp,
-  useRequestHelp,
   useConfirmHelp,
   useCancelHelpRequest,
   useCompleteHelpRequest,
@@ -21,6 +19,7 @@ import RequestSection from '../components/RequestSection';
 import OfferSection from '../components/OfferSection';
 import AddRequestModal from '../components/AddRequestModal';
 import AddOfferModal from '../components/AddOfferModal';
+import { useRequestHelp } from '../hooks/useRequestHelp';
 
 const HomePage: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
@@ -50,7 +49,10 @@ const HomePage: React.FC = () => {
     data: helpRequests,
     isLoading: requestsLoading,
     error: requestsError,
-  } = useHelpRequests();
+  } = useRequestHelp('2025-07-12');
+
+  console.log('helpRequests', helpRequests);
+
   const {
     data: helpOffers,
     isLoading: offersLoading,
@@ -61,7 +63,7 @@ const HomePage: React.FC = () => {
   const createRequest = useCreateHelpRequest();
   const createOffer = useCreateHelpOffer();
   const reserveHelp = useReserveHelp();
-  const requestHelp = useRequestHelp();
+  // requestHelp는 Query 훅이므로 제거 (useRequestHelp는 데이터 조회용)
   const confirmHelp = useConfirmHelp();
   const cancelHelpRequest = useCancelHelpRequest();
   const completeHelpRequest = useCompleteHelpRequest();
@@ -123,7 +125,8 @@ const HomePage: React.FC = () => {
 
   const handleRequest = async (id: string) => {
     try {
-      await requestHelp.mutateAsync(id);
+      // TODO: 실제 도움 요청 API 구현 필요
+      console.log('도움 요청:', id);
     } catch (error) {
       console.error('요청 실패:', error);
     }
@@ -247,7 +250,7 @@ const HomePage: React.FC = () => {
   // Offer 카드용 로딩 상태
   const getOfferLoadingState = (id: string) => {
     return {
-      isRequesting: requestHelp.isPending && requestHelp.variables === id,
+      isRequesting: false, // TODO: 실제 도움 요청 API 구현 필요
       isConfirming: confirmHelp.isPending && confirmHelp.variables?.id === id,
       isMarkingComplete:
         completeHelpOffer.isPending && completeHelpOffer.variables === id,

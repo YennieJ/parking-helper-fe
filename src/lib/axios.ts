@@ -24,9 +24,12 @@ export const postData = async <T = any>(
 };
 
 // GET 요청을 위한 기본 함수
-export const getData = async <T = any>(url: string): Promise<T> => {
+export const getData = async <T = any>(
+  url: string,
+  params?: any
+): Promise<T> => {
   try {
-    const response = await apiClient.get<T>(url);
+    const response = await apiClient.get<T>(url, { params });
     return response.data;
   } catch (error) {
     console.error('GET 요청 실패:', error);
