@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 interface Props {
-  type: 'request' | 'offer';
   requesterName?: string;
   carNumber?: string;
   onConfirm: () => void;
@@ -10,7 +9,6 @@ interface Props {
 }
 
 const CompleteConfirmationModal: React.FC<Props> = ({
-  type,
   requesterName,
   carNumber,
   onConfirm,
@@ -26,25 +24,14 @@ const CompleteConfirmationModal: React.FC<Props> = ({
   };
 
   const getModalContent = () => {
-    if (type === 'request') {
-      // 도와주세요 요청을 완료하는 경우 (내가 도움을 줬을 때)
-      return {
-        icon: '🤝',
-        title: '주차 도움 완료 확인',
-        description: `${requesterName}님(${carNumber})의 주차를 도와드리셨나요?`,
-        checkboxText: '주차 도움을 완료했습니다.',
-        confirmText: '완료 처리',
-      };
-    } else {
-      // 도와줄수있어요 제안을 완료하는 경우 (내가 도움을 받았을 때)
-      return {
-        icon: '🙏',
-        title: '주차 도움 완료 확인',
-        description: '다른 분의 도움으로 주차를 완료하셨나요?',
-        checkboxText: '주차 도움을 받아 완료했습니다.',
-        confirmText: '완료 처리',
-      };
-    }
+    // 내가 도움을 줬을 때만 사용
+    return {
+      icon: '🤝',
+      title: '주차 도움 완료 확인',
+      description: `${requesterName}님(${carNumber})의 주차를 도와드리셨나요?`,
+      checkboxText: '주차 도움을 완료했습니다.',
+      confirmText: '완료 처리',
+    };
   };
 
   const content = getModalContent();

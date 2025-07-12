@@ -6,10 +6,16 @@ import {
   useCreateHelpRequest,
   useCreateHelpOffer,
   useReserveHelp,
-  useCompleteHelp,
-  useDeleteHelp,
+  useRequestHelp,
+  useConfirmHelp,
+  useCancelHelpRequest,
+  useCompleteHelpRequest,
+  useCompleteHelpOffer,
+  useDeleteHelpRequest,
+  useDeleteHelpOffer,
   useCancelReservation,
 } from '../hooks/useParkingData';
+import { MESSAGES } from '../utils/messages';
 import HelpRequestCard from '../components/HelpRequestCard';
 import HelpOfferCard from '../components/HelpOfferCard';
 import AddRequestModal from '../components/AddRequestModal';
@@ -36,8 +42,13 @@ const HomePage: React.FC = () => {
   const createRequest = useCreateHelpRequest();
   const createOffer = useCreateHelpOffer();
   const reserveHelp = useReserveHelp();
-  const completeHelp = useCompleteHelp();
-  const deleteHelp = useDeleteHelp();
+  const requestHelp = useRequestHelp();
+  const confirmHelp = useConfirmHelp();
+  const cancelHelpRequest = useCancelHelpRequest();
+  const completeHelpRequest = useCompleteHelpRequest();
+  const completeHelpOffer = useCompleteHelpOffer();
+  const deleteHelpRequest = useDeleteHelpRequest();
+  const deleteHelpOffer = useDeleteHelpOffer();
   const cancelReservation = useCancelReservation();
 
   const getCurrentDateTime = () => {
@@ -80,38 +91,87 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleReserve = async (id: string, type: 'request' | 'offer') => {
+  const handleAccept = async (
+    id: string,
+    requestData?: { carNumber?: string; userName?: string }
+  ) => {
     try {
-      await reserveHelp.mutateAsync({ id, type });
+      await reserveHelp.mutateAsync({ id, requestData });
     } catch (error) {
-      console.error('예약 실패:', error);
+      console.error('수락 실패:', error);
     }
   };
 
-  const handleComplete = async (id: string, type: 'request' | 'offer') => {
+  const handleRequest = async (id: string) => {
     try {
-      await completeHelp.mutateAsync({ id, type });
+      await requestHelp.mutateAsync(id);
+    } catch (error) {
+      console.error('요청 실패:', error);
+    }
+  };
+
+  const handleConfirm = async (id: string) => {
+    try {
+      // 해당 offer의 차량번호 정보 찾기
+      const offer = helpOffers?.find((o: any) => o.id === id);
+      const offerData = offer?.requestedByCarNumber
+        ? {
+            carNumber: offer.requestedByCarNumber,
+            userName: offer.requestedBy,
+          }
+        : undefined;
+
+      await confirmHelp.mutateAsync({ id, offerData });
+    } catch (error) {
+      console.error('확인 실패:', error);
+    }
+  };
+
+  const handleMarkCompleteRequest = async (id: string) => {
+    try {
+      await completeHelpRequest.mutateAsync(id);
     } catch (error) {
       console.error('완료 처리 실패:', error);
     }
   };
 
-  const handleDelete = async (id: string, type: 'request' | 'offer') => {
+  const handleMarkCompleteOffer = async (id: string) => {
     try {
-      await deleteHelp.mutateAsync({ id, type });
+      await completeHelpOffer.mutateAsync(id);
+    } catch (error) {
+      console.error('완료 처리 실패:', error);
+    }
+  };
+
+  const handleRemoveRequest = async (id: string) => {
+    try {
+      await deleteHelpRequest.mutateAsync(id);
     } catch (error) {
       console.error('삭제 실패:', error);
     }
   };
 
-  const handleCancelReservation = async (
-    id: string,
-    type: 'request' | 'offer'
-  ) => {
+  const handleRemoveOffer = async (id: string) => {
     try {
-      await cancelReservation.mutateAsync({ id, type });
+      await deleteHelpOffer.mutateAsync(id);
     } catch (error) {
-      console.error('예약 취소 실패:', error);
+      console.error('삭제 실패:', error);
+    }
+  };
+
+  const handleCancelAcceptance = async (id: string) => {
+    try {
+      await cancelReservation.mutateAsync(id);
+    } catch (error) {
+      console.error('수락 취소 실패:', error);
+    }
+  };
+
+  const handleCancelRequest = async (id: string) => {
+    try {
+      await cancelHelpRequest.mutateAsync(id);
+    } catch (error) {
+      console.error('요청 취소 실패:', error);
     }
   };
 
@@ -152,24 +212,29 @@ const HomePage: React.FC = () => {
     );
   }
 
-  // 각 아이템별 로딩 상태를 추적하기 위한 함수들
-  const getLoadingState = (id: string, type: 'request' | 'offer') => {
-    const variables = { id, type };
-
+  // Request 카드용 로딩 상태
+  const getRequestLoadingState = (id: string) => {
     return {
-      isReserving:
-        reserveHelp.isPending &&
-        JSON.stringify(reserveHelp.variables) === JSON.stringify(variables),
-      isCompleting:
-        completeHelp.isPending &&
-        JSON.stringify(completeHelp.variables) === JSON.stringify(variables),
-      isDeleting:
-        deleteHelp.isPending &&
-        JSON.stringify(deleteHelp.variables) === JSON.stringify(variables),
-      isCanceling:
-        cancelReservation.isPending &&
-        JSON.stringify(cancelReservation.variables) ===
-          JSON.stringify(variables),
+      isAccepting: reserveHelp.isPending && reserveHelp.variables?.id === id,
+      isMarkingComplete:
+        completeHelpRequest.isPending && completeHelpRequest.variables === id,
+      isRemoving:
+        deleteHelpRequest.isPending && deleteHelpRequest.variables === id,
+      isCancelingAcceptance:
+        cancelReservation.isPending && cancelReservation.variables === id,
+    };
+  };
+
+  // Offer 카드용 로딩 상태
+  const getOfferLoadingState = (id: string) => {
+    return {
+      isRequesting: requestHelp.isPending && requestHelp.variables === id,
+      isConfirming: confirmHelp.isPending && confirmHelp.variables?.id === id,
+      isMarkingComplete:
+        completeHelpOffer.isPending && completeHelpOffer.variables === id,
+      isRemoving: deleteHelpOffer.isPending && deleteHelpOffer.variables === id,
+      isCancelingRequest:
+        cancelHelpRequest.isPending && cancelHelpRequest.variables === id,
     };
   };
 
@@ -195,7 +260,7 @@ const HomePage: React.FC = () => {
             }`}
           >
             <span className="text-lg">🆘</span>
-            도와주세요 ({helpRequests?.length || 0})
+            차량 등록 요청하기 ({helpRequests?.length || 0})
           </button>
           <button
             onClick={() => setActiveTab('offer')}
@@ -206,19 +271,19 @@ const HomePage: React.FC = () => {
             }`}
           >
             <span className="text-lg">🙋‍♂️</span>
-            도와줄수있어요 ({helpOffers?.length || 0})
+            차량 등록 도와주기 ({helpOffers?.length || 0})
           </button>
         </div>
       </div>
 
       <div className="p-4">
-        {/* 도와주세요 탭 */}
+        {/* 차량 등록 요청하기 탭 */}
         {activeTab === 'request' && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <span className="text-xl">🆘</span>
-                도와주세요
+                차량 등록 요청하기
               </h2>
               <button
                 onClick={handleAddRequest}
@@ -237,32 +302,37 @@ const HomePage: React.FC = () => {
                 <HelpRequestCard
                   key={request.id}
                   request={request}
-                  onReserve={() => handleReserve(request.id, 'request')}
-                  onComplete={() => handleComplete(request.id, 'request')}
-                  onDelete={() => handleDelete(request.id, 'request')}
-                  onCancelReservation={() =>
-                    handleCancelReservation(request.id, 'request')
+                  onAccept={() =>
+                    handleAccept(request.id, {
+                      carNumber: request.carNumber,
+                      userName: request.userName,
+                    })
                   }
-                  loadingState={getLoadingState(request.id, 'request')}
+                  onMarkComplete={() => handleMarkCompleteRequest(request.id)}
+                  onRemove={() => handleRemoveRequest(request.id)}
+                  onCancelAcceptance={() => handleCancelAcceptance(request.id)}
+                  loadingState={getRequestLoadingState(request.id)}
                 />
               ))}
               {(!helpRequests || helpRequests.length === 0) && (
                 <div className="card text-center py-8">
                   <div className="text-4xl mb-2">🤷‍♂️</div>
-                  <p className="text-gray-500">등록된 도움 요청이 없습니다.</p>
+                  <p className="text-gray-500">
+                    {MESSAGES.HELP_REQUEST.EMPTY_STATE}
+                  </p>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* 도와줄수있어요 탭 */}
+        {/* 차량 등록 도와주기 탭 */}
         {activeTab === 'offer' && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <span className="text-xl">🙋‍♂️</span>
-                도와줄수있어요
+                차량 등록 도와주기
               </h2>
               <button
                 onClick={handleAddOffer}
@@ -281,19 +351,20 @@ const HomePage: React.FC = () => {
                 <HelpOfferCard
                   key={offer.id}
                   offer={offer}
-                  onReserve={() => handleReserve(offer.id, 'offer')}
-                  onComplete={() => handleComplete(offer.id, 'offer')}
-                  onDelete={() => handleDelete(offer.id, 'offer')}
-                  onCancelReservation={() =>
-                    handleCancelReservation(offer.id, 'offer')
-                  }
-                  loadingState={getLoadingState(offer.id, 'offer')}
+                  onRequest={() => handleRequest(offer.id)}
+                  onConfirm={() => handleConfirm(offer.id)}
+                  onMarkComplete={() => handleMarkCompleteOffer(offer.id)}
+                  onRemove={() => handleRemoveOffer(offer.id)}
+                  onCancelRequest={() => handleCancelRequest(offer.id)}
+                  loadingState={getOfferLoadingState(offer.id)}
                 />
               ))}
               {(!helpOffers || helpOffers.length === 0) && (
                 <div className="card text-center py-8">
                   <div className="text-4xl mb-2">🤷‍♀️</div>
-                  <p className="text-gray-500">등록된 도움 제안이 없습니다.</p>
+                  <p className="text-gray-500">
+                    {MESSAGES.HELP_OFFER.EMPTY_STATE}
+                  </p>
                 </div>
               )}
             </div>

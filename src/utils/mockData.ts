@@ -1,12 +1,13 @@
 // 타입 정의
-type Status = 'waiting' | 'reserved' | 'completed';
+type RequestStatus = 'waiting' | 'reserved' | 'completed';
+type OfferStatus = 'waiting' | 'requested' | 'confirmed' | 'completed';
 
 interface HelpRequest {
   id: string;
   userName: string;
   carNumber: string;
   createdAt: string;
-  status: Status;
+  status: RequestStatus;
   isOwner: boolean;
   reservedBy?: string;
   reservedById?: string;
@@ -18,11 +19,11 @@ interface HelpOffer {
   id: string;
   userName: string;
   createdAt: string;
-  status: Status;
+  status: OfferStatus;
   isOwner: boolean;
-  reservedBy?: string;
-  reservedById?: string;
-  reservedByCarNumber?: string;
+  requestedBy?: string;
+  requestedById?: string;
+  requestedByCarNumber?: string;
   userEmail?: string; // Slack 멘션용 이메일
 }
 
@@ -65,19 +66,63 @@ export const mockHelpOffers: HelpOffer[] = [
     userName: '이영희',
     createdAt: '08:40',
     status: 'waiting',
-    isOwner: false,
+    isOwner: false, // 기본값, API에서 동적으로 계산됨
     userEmail: 'lee.younghee@company.com',
   },
   {
     id: '2',
     userName: '정수민',
     createdAt: '08:45',
-    status: 'reserved',
-    reservedBy: '김철수',
-    reservedById: '1',
-    reservedByCarNumber: '12가 3456', // 예약자의 차량번호 추가
-    isOwner: true,
+    status: 'requested',
+    requestedBy: '김철수',
+    requestedById: '1',
+    requestedByCarNumber: '12가 3456', // 요청자의 차량번호 추가
+    isOwner: false, // 기본값, API에서 동적으로 계산됨
     userEmail: 'jung.sumin@company.com',
+  },
+  {
+    id: '3',
+    userName: '김설수',
+    createdAt: '09:00',
+    status: 'requested',
+    requestedBy: '박민수',
+    requestedById: '3',
+    requestedByCarNumber: '56다 7890', // 박민수의 차량번호
+    isOwner: false, // 기본값, API에서 동적으로 계산됨
+    userEmail: 'kim.seolsu@company.com',
+  },
+  {
+    id: '4',
+    userName: '김설수',
+    createdAt: '09:15',
+    status: 'confirmed',
+    requestedBy: '최영수',
+    requestedById: '5',
+    requestedByCarNumber: '90마 9012', // 최영수의 차량번호
+    isOwner: false, // 기본값, API에서 동적으로 계산됨
+    userEmail: 'kim.seolsu@company.com',
+  },
+  {
+    id: '5',
+    userName: '김철수',
+    createdAt: '09:30',
+    status: 'requested',
+    requestedBy: '이영희',
+    requestedById: '2',
+    requestedByCarNumber: '34나 1234', // 이영희의 차량번호
+    isOwner: false, // 기본값, API에서 동적으로 계산됨
+    userEmail: 'kim.chulsoo@company.com',
+  },
+  {
+    id: '6',
+    userName: '김철수',
+    createdAt: '09:45',
+    status: 'confirmed',
+    requestedBy: '정수민',
+    requestedById: '4',
+    requestedByCarNumber: '78라 5678', // 정수민의 차량번호
+    isOwner: false, // 기본값, API에서 동적으로 계산됨
+    userEmail: 'kim.chulsoo@company.com',
   },
 ];
 
@@ -91,7 +136,7 @@ export const mockMyData = {
   ],
   myOffers: [{ id: '1', time: '08:40', status: '대기중' }],
   myReservations: [
-    { id: '1', type: '도와주세요', user: '박민수', time: '진행중' },
+    { id: '1', type: '차량 등록 요청하기', user: '박민수', time: '진행중' },
   ],
 };
 
@@ -116,8 +161,22 @@ const getCurrentUser = () => {
 
 // 목업 API 함수들 (실제 API와 같은 인터페이스)
 export const mockParkingApi = {
-  getHelpRequests: () => Promise.resolve(mockHelpRequests),
-  getHelpOffers: () => Promise.resolve(mockHelpOffers),
+  getHelpRequests: () => {
+    const currentUser = getCurrentUser();
+    const requestsWithOwnership = mockHelpRequests.map((request) => ({
+      ...request,
+      isOwner: request.userName === currentUser.name,
+    }));
+    return Promise.resolve(requestsWithOwnership);
+  },
+  getHelpOffers: () => {
+    const currentUser = getCurrentUser();
+    const offersWithOwnership = mockHelpOffers.map((offer) => ({
+      ...offer,
+      isOwner: offer.userName === currentUser.name,
+    }));
+    return Promise.resolve(offersWithOwnership);
+  },
   getMyData: () => Promise.resolve(mockMyData),
   getEmployeeOfMonth: () => Promise.resolve(mockEmployeeOfMonth),
 
@@ -164,12 +223,12 @@ export const mockParkingApi = {
     });
   },
 
-  reserveHelp: (id: string, type: 'request' | 'offer') => {
+  // 도움 요청하기 수락 (기존 로직)
+  reserveHelp: (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const currentUser = getCurrentUser();
-        const array = type === 'request' ? mockHelpRequests : mockHelpOffers;
-        const item = array.find((item) => item.id === id);
+        const item = mockHelpRequests.find((item) => item.id === id);
 
         if (!item) {
           reject({ response: { data: { code: 'NOT_FOUND' } } });
@@ -185,40 +244,107 @@ export const mockParkingApi = {
         item.reservedBy = currentUser.name;
         item.reservedById = currentUser.id;
 
-        // 도와줄수있어요의 경우 예약자의 차량번호도 저장
-        if (type === 'offer') {
-          item.reservedByCarNumber = currentUser.carNumber;
+        resolve(item);
+      }, 1000);
+    });
+  },
+
+  // 도움 제안에 요청하기
+  requestHelp: (id: string) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const currentUser = getCurrentUser();
+        const item = mockHelpOffers.find((item) => item.id === id);
+
+        if (!item) {
+          reject({ response: { data: { code: 'NOT_FOUND' } } });
+          return;
         }
+
+        if (item.status !== 'waiting') {
+          reject({ response: { data: { code: 'INVALID_STATUS' } } });
+          return;
+        }
+
+        item.status = 'requested';
+        item.requestedBy = currentUser.name;
+        item.requestedById = currentUser.id;
+        item.requestedByCarNumber = currentUser.carNumber;
 
         resolve(item);
       }, 1000);
     });
   },
 
-  cancelReservation: (id: string, type: 'request' | 'offer') => {
+  // 도움 요청 확인하기
+  confirmHelp: (id: string) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const item = mockHelpOffers.find((item) => item.id === id);
+
+        if (!item) {
+          reject({ response: { data: { code: 'NOT_FOUND' } } });
+          return;
+        }
+
+        if (item.status !== 'requested') {
+          reject({ response: { data: { code: 'INVALID_STATUS' } } });
+          return;
+        }
+
+        item.status = 'confirmed';
+        resolve(item);
+      }, 1000);
+    });
+  },
+
+  // 도움 요청 취소하기
+  cancelHelpRequest: (id: string) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const item = mockHelpOffers.find((item) => item.id === id);
+
+        if (!item) {
+          reject({ response: { data: { code: 'NOT_FOUND' } } });
+          return;
+        }
+
+        if (item.status !== 'requested') {
+          reject({ response: { data: { code: 'INVALID_STATUS' } } });
+          return;
+        }
+
+        item.status = 'waiting';
+        item.requestedBy = undefined;
+        item.requestedById = undefined;
+        item.requestedByCarNumber = undefined;
+
+        resolve(item);
+      }, 1000);
+    });
+  },
+
+  // 도움 요청하기 수락 취소 (기존 로직)
+  cancelReservation: (id: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const array = type === 'request' ? mockHelpRequests : mockHelpOffers;
-        const item = array.find((item) => item.id === id);
+        const item = mockHelpRequests.find((item) => item.id === id);
 
         if (item) {
           item.status = 'waiting';
-          delete item.reservedBy;
-          delete item.reservedById;
-          if (type === 'offer') {
-            delete item.reservedByCarNumber;
-          }
+          item.reservedBy = undefined;
+          item.reservedById = undefined;
         }
         resolve(item);
       }, 1000);
     });
   },
 
-  completeHelp: (id: string, type: 'request' | 'offer') => {
+  // 완료 처리 (분리)
+  completeHelpRequest: (id: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const array = type === 'request' ? mockHelpRequests : mockHelpOffers;
-        const item = array.find((item) => item.id === id);
+        const item = mockHelpRequests.find((item) => item.id === id);
 
         if (item) {
           item.status = 'completed';
@@ -228,28 +354,56 @@ export const mockParkingApi = {
     });
   },
 
-  deleteHelp: (id: string, type: 'request' | 'offer') => {
+  completeHelpOffer: (id: string) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const item = mockHelpOffers.find((item) => item.id === id);
+
+        if (item) {
+          item.status = 'completed';
+        }
+        resolve(item);
+      }, 1000);
+    });
+  },
+
+  // 삭제 처리 (분리)
+  deleteHelpRequest: (id: string) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const index = mockHelpRequests.findIndex((item) => item.id === id);
+        if (index > -1) {
+          mockHelpRequests.splice(index, 1);
+        }
+        resolve({ success: true });
+      }, 1000);
+    });
+  },
+
+  deleteHelpOffer: (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const array = type === 'request' ? mockHelpRequests : mockHelpOffers;
-        const item = array.find((item) => item.id === id);
+        const item = mockHelpOffers.find((item) => item.id === id);
 
-        // 도와줄수있어요가 예약된 상태면 삭제 불가
-        if (type === 'offer' && item && item.status === 'reserved') {
+        // 도움 제안이 요청된 상태면 삭제 불가
+        if (
+          item &&
+          (item.status === 'requested' || item.status === 'confirmed')
+        ) {
           reject({
             response: {
               data: {
-                code: 'CANNOT_DELETE_RESERVED',
-                message: '예약된 제안은 삭제할 수 없습니다.',
+                code: 'CANNOT_DELETE_REQUESTED',
+                message: '요청된 제안은 삭제할 수 없습니다.',
               },
             },
           });
           return;
         }
 
-        const index = array.findIndex((item) => item.id === id);
+        const index = mockHelpOffers.findIndex((item) => item.id === id);
         if (index > -1) {
-          array.splice(index, 1);
+          mockHelpOffers.splice(index, 1);
         }
         resolve({ success: true });
       }, 1000);

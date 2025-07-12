@@ -23,7 +23,7 @@ const MyPage: React.FC = () => {
   const myOffers = [{ id: '1', time: '08:40', status: '대기중' }];
 
   const myReservations = [
-    { id: '1', type: '도와주세요', user: '박민수', time: '진행중' },
+    { id: '1', type: '차량 등록 요청하기', user: '박민수', time: '진행중' },
   ];
 
   const handleLogout = () => {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { MESSAGES } from '../utils/messages';
 import CompleteConfirmationModal from './CompleteConfirmationModal';
 
 interface HelpRequest {
@@ -11,43 +12,44 @@ interface HelpRequest {
   reservedBy?: string;
   reservedById?: string;
   isOwner: boolean;
+  userEmail?: string;
 }
 
 interface Props {
   request: HelpRequest;
-  onReserve: () => void;
-  onComplete: () => void;
-  onDelete: () => void;
-  onCancelReservation: () => void;
+  onAccept: () => void;
+  onMarkComplete: () => void;
+  onRemove: () => void;
+  onCancelAcceptance: () => void;
   loadingState?: {
-    isReserving?: boolean;
-    isCompleting?: boolean;
-    isDeleting?: boolean;
-    isCanceling?: boolean;
+    isAccepting?: boolean;
+    isMarkingComplete?: boolean;
+    isRemoving?: boolean;
+    isCancelingAcceptance?: boolean;
   };
 }
 
 const HelpRequestCard: React.FC<Props> = ({
   request,
-  onReserve,
-  onComplete,
-  onDelete,
-  onCancelReservation,
+  onAccept,
+  onMarkComplete,
+  onRemove,
+  onCancelAcceptance,
   loadingState = {},
 }) => {
   const { user } = useAuth();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const isReservedByMe = request.reservedById === user?.id;
-  const canComplete = request.status === 'reserved' && isReservedByMe;
-  const canCancelReservation = request.status === 'reserved' && isReservedByMe;
+  const isAcceptedByMe = request.reservedById === user?.id;
+  const canMarkComplete = request.status === 'reserved' && isAcceptedByMe;
+  const canCancelAcceptance = request.status === 'reserved' && isAcceptedByMe;
 
   const handleCompleteClick = () => {
     setShowCompleteModal(true);
   };
 
   const handleCompleteConfirm = () => {
-    onComplete();
+    onMarkComplete();
     setShowCompleteModal(false);
   };
 
@@ -55,7 +57,7 @@ const HelpRequestCard: React.FC<Props> = ({
     if (request.status === 'completed') {
       return (
         <div className="flex items-center justify-center py-2">
-          <div className="flex items-center gap-2 text-sm text-green-600 font-medium bg-green-50 px-3 py-2 rounded-xl">
+          <div className="flex items-center gap-2 text-sm text-green-700 font-medium bg-green-50 px-3 py-2 rounded-xl border border-green-200">
             <span>✅</span>
             완료됨
           </div>
@@ -67,42 +69,42 @@ const HelpRequestCard: React.FC<Props> = ({
       return (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-blue-600 font-medium bg-blue-50 px-3 py-2 rounded-xl">
-              📝 {request.reservedBy}님이 예약
+            <span className="text-sm text-gray-700 font-medium bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
+              📝 {request.reservedBy}님이 수락
             </span>
           </div>
 
           <div className="flex gap-2">
-            {canCancelReservation && (
+            {canCancelAcceptance && (
               <button
-                onClick={onCancelReservation}
-                disabled={loadingState.isCanceling}
+                onClick={onCancelAcceptance}
+                disabled={loadingState.isCancelingAcceptance}
                 className="btn-outline text-sm px-3 py-2 flex-1 disabled:opacity-50"
               >
-                {loadingState.isCanceling ? (
+                {loadingState.isCancelingAcceptance ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-1"></div>
                     취소중...
                   </div>
                 ) : (
-                  '예약 취소'
+                  '도움 수락 취소하기'
                 )}
               </button>
             )}
 
-            {canComplete && (
+            {canMarkComplete && (
               <button
                 onClick={handleCompleteClick}
-                disabled={loadingState.isCompleting}
+                disabled={loadingState.isMarkingComplete}
                 className="btn-primary text-sm px-3 py-2 flex-1 disabled:opacity-50"
               >
-                {loadingState.isCompleting ? (
+                {loadingState.isMarkingComplete ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
                     완료중...
                   </div>
                 ) : (
-                  '완료하기'
+                  '등록 완료'
                 )}
               </button>
             )}
@@ -116,28 +118,28 @@ const HelpRequestCard: React.FC<Props> = ({
       <div className="flex gap-2">
         {!request.isOwner && (
           <button
-            onClick={onReserve}
-            disabled={loadingState.isReserving}
+            onClick={onAccept}
+            disabled={loadingState.isAccepting}
             className="btn-primary text-sm px-3 py-2 flex-1 disabled:opacity-50"
           >
-            {loadingState.isReserving ? (
+            {loadingState.isAccepting ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
-                예약중...
+                수락중...
               </div>
             ) : (
-              '예약하기'
+              '도움 요청 수락하기'
             )}
           </button>
         )}
 
         {request.isOwner && (
           <button
-            onClick={onDelete}
-            disabled={loadingState.isDeleting}
+            onClick={onRemove}
+            disabled={loadingState.isRemoving}
             className="btn-danger text-sm px-3 py-2 flex-1 disabled:opacity-50"
           >
-            {loadingState.isDeleting ? (
+            {loadingState.isRemoving ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
                 삭제중...
@@ -154,9 +156,9 @@ const HelpRequestCard: React.FC<Props> = ({
   const getStatusColor = () => {
     switch (request.status) {
       case 'waiting':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-white text-yellow-600 border-yellow-300';
       case 'reserved':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
       default:
@@ -167,13 +169,13 @@ const HelpRequestCard: React.FC<Props> = ({
   const getStatusText = () => {
     switch (request.status) {
       case 'waiting':
-        return '대기중';
+        return MESSAGES.STATUS.WAITING;
       case 'reserved':
-        return '예약됨';
+        return MESSAGES.STATUS.HELPING;
       case 'completed':
-        return '완료';
+        return MESSAGES.STATUS.COMPLETED;
       default:
-        return '알 수 없음';
+        return MESSAGES.STATUS.UNKNOWN;
     }
   };
 
@@ -211,12 +213,11 @@ const HelpRequestCard: React.FC<Props> = ({
       {/* 완료 확인 모달 */}
       {showCompleteModal && (
         <CompleteConfirmationModal
-          type="request"
           requesterName={request.userName}
           carNumber={request.carNumber}
           onConfirm={handleCompleteConfirm}
           onCancel={() => setShowCompleteModal(false)}
-          isLoading={loadingState.isCompleting}
+          isLoading={loadingState.isMarkingComplete}
         />
       )}
     </>

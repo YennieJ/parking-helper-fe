@@ -17,7 +17,6 @@ interface Props {
 const EditProfileModal: React.FC<Props> = ({ user, onClose, onSave }) => {
   const { updateUser } = useAuth();
   const [formData, setFormData] = useState({
-    name: user.name,
     carNumber: user.carNumber,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -33,10 +32,6 @@ const EditProfileModal: React.FC<Props> = ({ user, onClose, onSave }) => {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = '이름을 입력해주세요.';
-    }
 
     if (!formData.carNumber.trim()) {
       newErrors.carNumber = '차량번호를 입력해주세요.';
@@ -109,25 +104,20 @@ const EditProfileModal: React.FC<Props> = ({ user, onClose, onSave }) => {
                 사원번호는 변경할 수 없습니다.
               </p>
             </div>
-
             {/* 이름 */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                이름 <span className="text-red-500">*</span>
+                이름
               </label>
               <input
                 type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`input-field ${
-                  errors.name ? 'border-red-500 focus:border-red-500' : ''
-                }`}
-                placeholder="이름을 입력하세요"
-                disabled={isLoading}
+                value={user.name}
+                disabled
+                className="input-field bg-gray-100 text-gray-500 cursor-not-allowed"
               />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              )}
+              <p className="text-xs text-gray-500 mt-1">
+                이름은 변경할 수 없습니다.
+              </p>
             </div>
 
             {/* 차량번호 */}
