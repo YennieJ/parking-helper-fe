@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { getData } from '../lib/axios';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getData, deleteData } from '../lib/axios';
 
 // 도움 요청 타입
 export interface RequestHelp {
@@ -33,5 +33,19 @@ export const useRequestHelp = (FromReqDate?: string) => {
   });
 };
 
-// 사용 예시:
-// const { data: requestHelpList, isLoading, error } = useRequestHelp();
+// 도움 요청 삭제 mutation 훅
+export const useDeleteRequestHelp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) =>
+      deleteData(`/api/ParkingHelper/RequestHelp/${id}`),
+    onSuccess: () => {
+      // 삭제 성공 시 도움 요청 목록 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ['request-help'] });
+    },
+    onError: (error) => {
+      console.error('도움 요청 삭제 실패:', error);
+    },
+  });
+};

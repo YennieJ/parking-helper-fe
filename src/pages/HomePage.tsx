@@ -9,7 +9,6 @@ import {
   useCancelHelpRequest,
   useCompleteHelpRequest,
   useCompleteHelpOffer,
-  useDeleteHelpRequest,
   useDeleteHelpOffer,
   useCancelReservation,
 } from '../hooks/useParkingData';
@@ -19,7 +18,7 @@ import RequestSection from '../components/RequestSection';
 import OfferSection from '../components/OfferSection';
 import AddRequestModal from '../components/AddRequestModal';
 import AddOfferModal from '../components/AddOfferModal';
-import { useRequestHelp } from '../hooks/useRequestHelp';
+import { useRequestHelp, useDeleteRequestHelp } from '../hooks/useRequestHelp';
 
 const HomePage: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
@@ -68,9 +67,11 @@ const HomePage: React.FC = () => {
   const cancelHelpRequest = useCancelHelpRequest();
   const completeHelpRequest = useCompleteHelpRequest();
   const completeHelpOffer = useCompleteHelpOffer();
-  const deleteHelpRequest = useDeleteHelpRequest();
   const deleteHelpOffer = useDeleteHelpOffer();
   const cancelReservation = useCancelReservation();
+
+  // 새로운 Request Help mutation 훅들
+  const deleteRequestHelp = useDeleteRequestHelp();
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -167,7 +168,7 @@ const HomePage: React.FC = () => {
 
   const handleRemoveRequest = async (id: string) => {
     try {
-      await deleteHelpRequest.mutateAsync(id);
+      await deleteRequestHelp.mutateAsync(Number(id));
     } catch (error) {
       console.error('삭제 실패:', error);
     }
@@ -241,7 +242,8 @@ const HomePage: React.FC = () => {
       isMarkingComplete:
         completeHelpRequest.isPending && completeHelpRequest.variables === id,
       isRemoving:
-        deleteHelpRequest.isPending && deleteHelpRequest.variables === id,
+        deleteRequestHelp.isPending &&
+        deleteRequestHelp.variables === Number(id),
       isCancelingAcceptance:
         cancelReservation.isPending && cancelReservation.variables === id,
     };
