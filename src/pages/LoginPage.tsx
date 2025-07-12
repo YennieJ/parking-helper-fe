@@ -65,7 +65,7 @@ const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary w-full text-lg cursor-pointer"
+              className="btn-primary w-full text-lg"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">

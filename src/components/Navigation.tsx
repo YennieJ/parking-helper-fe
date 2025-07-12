@@ -37,7 +37,7 @@ const Navigation: React.FC = () => {
             <button
               key={item.path}
               onClick={handleParkingWebsite}
-              className="flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95 cursor-pointer"
+              className="flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95"
             >
               <span className="text-lg mb-1">{item.icon}</span>
               <span className="text-xs font-medium">{item.label}</span>
