@@ -330,10 +330,7 @@ export const useCompleteHelpRequest = () => {
       queryClient.invalidateQueries({ queryKey: ['myData'] });
       queryClient.invalidateQueries({ queryKey: ['employeeOfMonth'] });
 
-      showSuccess(
-        '완료 처리',
-        '주차 도움이 완료되었습니다! 고생하셨습니다. 🎉'
-      );
+      showSuccess('완료 처리', '주차 도움이 완료되었습니다! 감사합니다. 🎉');
 
       // 성공 햅틱 피드백
       if (navigator.vibrate) {
@@ -358,10 +355,7 @@ export const useCompleteHelpOffer = () => {
       queryClient.invalidateQueries({ queryKey: ['myData'] });
       queryClient.invalidateQueries({ queryKey: ['employeeOfMonth'] });
 
-      showSuccess(
-        '완료 처리',
-        '주차 도움이 완료되었습니다! 고생하셨습니다. 🎉'
-      );
+      showSuccess('완료 처리', '주차 도움이 완료되었습니다! 감사합니다. 🎉');
 
       // 성공 햅틱 피드백
       if (navigator.vibrate) {

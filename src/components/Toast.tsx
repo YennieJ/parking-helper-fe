@@ -111,33 +111,13 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
   };
 
   const getToastStyles = () => {
-    switch (toast.type) {
-      case 'success':
-        return 'bg-green-500 text-white border-green-600';
-      case 'error':
-        return 'bg-red-500 text-white border-red-600';
-      case 'warning':
-        return 'bg-yellow-500 text-white border-yellow-600';
-      case 'info':
-        return 'bg-blue-500 text-white border-blue-600';
-      default:
-        return 'bg-gray-500 text-white border-gray-600';
-    }
+    // 모든 스낵바를 파란색으로 통일
+    return 'bg-blue-500 text-white border-blue-600';
   };
 
   const getIcon = () => {
-    switch (toast.type) {
-      case 'success':
-        return '✅';
-      case 'error':
-        return '❌';
-      case 'warning':
-        return '⚠️';
-      case 'info':
-        return 'ℹ️';
-      default:
-        return '📢';
-    }
+    // 모든 스낵바에 동일한 아이콘 사용
+    return '📢';
   };
 
   return (
