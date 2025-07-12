@@ -7,13 +7,9 @@ const Navigation: React.FC = () => {
   const { logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleRefresh = () => {
-    window.location.reload();
-  };
-
   const handleParkingWebsite = () => {
     // 실제 주차 등록 사이트 URL로 변경 필요
-    window.open('https://parking.example.com', '_blank');
+    window.open('http://gidc001.iptime.org:35052/nxpmsc/login', '_blank');
   };
 
   const handleLogout = () => {
@@ -23,43 +19,44 @@ const Navigation: React.FC = () => {
 
   const navItems = [
     { path: '/', icon: '🏠', label: '홈' },
-    { path: '/my-page', icon: '👤', label: '내페이지' },
     { path: '/employee-of-month', icon: '🏆', label: '이달의사원' },
+    {
+      path: '/parking-register',
+      icon: '🚗',
+      label: '주차등록 (C2115)',
+      isExternal: true,
+    },
+    { path: '/my-page', icon: '👤', label: '내페이지' },
   ];
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 px-4 py-2 grid grid-cols-5 gap-1 shadow-lg">
-        {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 ${
-              location.pathname === item.path
-                ? 'bg-primary-500 text-white shadow-lg transform scale-105'
-                : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95'
-            }`}
-          >
-            <span className="text-lg mb-1">{item.icon}</span>
-            <span className="text-xs font-medium">{item.label}</span>
-          </Link>
-        ))}
-
-        <button
-          onClick={handleRefresh}
-          className="flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95"
-        >
-          <span className="text-lg mb-1">🔄</span>
-          <span className="text-xs font-medium">새로고침</span>
-        </button>
-
-        <button
-          onClick={handleParkingWebsite}
-          className="flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95"
-        >
-          <span className="text-lg mb-1">🚗</span>
-          <span className="text-xs font-medium">주차등록</span>
-        </button>
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 px-4 py-2 grid grid-cols-4 gap-1 shadow-lg">
+        {navItems.map((item) =>
+          item.isExternal ? (
+            <button
+              key={item.path}
+              onClick={handleParkingWebsite}
+              className="flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95 cursor-pointer"
+            >
+              <span className="text-lg mb-1">{item.icon}</span>
+              <span className="text-xs font-medium">{item.label}</span>
+            </button>
+          ) : (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 ${
+                location.pathname === item.path
+                  ? 'bg-primary-500 text-white shadow-lg transform scale-105'
+                  : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95'
+              }`}
+            >
+              <span className="text-lg mb-1">{item.icon}</span>
+              <span className="text-xs font-medium">{item.label}</span>
+            </Link>
+          )
+        )}
       </div>
 
       {/* 로그아웃 모달 */}
