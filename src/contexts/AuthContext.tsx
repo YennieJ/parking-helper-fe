@@ -30,7 +30,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const savedUser = localStorage.getItem('parking_user');
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsedUser = JSON.parse(savedUser);
+        // id를 명시적으로 숫자로 변환
+        parsedUser.id = Number(parsedUser.id);
+        setUser(parsedUser);
       } catch (error) {
         localStorage.removeItem('parking_user');
       }
@@ -40,25 +43,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (employeeNumber: string): Promise<boolean> => {
     try {
       const result = await loginMutation.mutateAsync({
-        memberId: employeeNumber,
+        memberLoginId: employeeNumber,
       });
 
-      if (result.Result === 'Success') {
-        // API 응답을 프론트엔드 형식으로 변환
-        const userData = {
-          id: result.Id,
-          employeeNumber: result.MemberLoginId,
-          name: result.MemberName,
-          carNumber: result.Cars?.[0]?.carNumber || '',
-          email: result.Email,
-        };
+      // HTTP 상태 코드가 200이면 성공, 400이면 에러가 이미 던져짐
+      // API 응답을 프론트엔드 형식으로 변환
+      const userData = {
+        id: result.id,
+        employeeNumber: result.memberLoginId,
+        name: result.memberName,
+        carNumber: result.cars?.[0]?.carNumber || '',
+        email: result.email,
+      };
 
-        setUser(userData);
-        localStorage.setItem('parking_user', JSON.stringify(userData));
-        return true;
-      }
-
-      return false;
+      setUser(userData);
+      localStorage.setItem('parking_user', JSON.stringify(userData));
+      return true;
     } catch (error) {
       console.error('로그인 실패:', error);
       return false;

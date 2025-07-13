@@ -3,21 +3,25 @@ import { postData } from '../lib/axios';
 
 // API 응답 타입
 export interface MemberResponse {
-  Id: number;
-  MemberLoginId: string;
-  Password: string;
-  MemberName: string;
-  Email: string;
-  CreateDate: string;
-  Cars: any[];
-  HelpRequests: any[];
-  HelpOffers: any[];
-  Result: string;
+  id: number;
+  memberLoginId: string;
+  memberName: string;
+  email: string;
+  createDate: string;
+  cars: Array<{
+    id: number;
+    carNumber: string;
+    memberId: number;
+    createDate: string;
+    updateDate: string;
+  }>;
+  helpRequests: any[];
+  helpOffers: any[];
 }
 
 // 요청 타입
 export interface MemberRequest {
-  memberId: string;
+  memberLoginId: string;
 }
 
 // 로그인 훅
