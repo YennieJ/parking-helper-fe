@@ -48,7 +48,7 @@ const MyPage: React.FC = () => {
       <Header
         title="내 페이지"
         rightAction={{
-          icon: '🚪',
+          icon: '로그아웃',
           onClick: () => setShowLogoutModal(true),
         }}
       />
@@ -95,8 +95,8 @@ const MyPage: React.FC = () => {
                 <label className="block text-gray-700 font-semibold mb-1">
                   차량번호
                 </label>
-                <div className="input-field bg-gray-100 text-gray-500">
-                  {user.carNumber}
+                <div className="input-field bg-gray-100 text-gray-500 min-h-[44px] flex items-center">
+                  {user.carNumber || '등록된 차량번호가 없습니다'}
                 </div>
               </div>
 
