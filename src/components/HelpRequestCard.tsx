@@ -35,7 +35,6 @@ const HelpRequestCard: React.FC<Props> = ({
   const { user } = useAuth();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  // yen: 타입 확인 요청함
   const isOwner = request.helpReqMemId === user?.id;
   const isAcceptedByMe = request.helperMemId === user?.id;
   const canMarkComplete =

@@ -8,6 +8,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://parkinghelp.onrender.com',
+        // target: 'http://localhost:8080',
+
         changeOrigin: true,
         secure: false,
       },

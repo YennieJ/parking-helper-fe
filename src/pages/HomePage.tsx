@@ -18,7 +18,11 @@ import RequestSection from '../components/RequestSection';
 import OfferSection from '../components/OfferSection';
 import AddRequestModal from '../components/AddRequestModal';
 import AddOfferModal from '../components/AddOfferModal';
-import { useRequestHelp, useDeleteRequestHelp } from '../hooks/useRequestHelp';
+import {
+  useRequestHelp,
+  useDeleteRequestHelp,
+  useUpdateRequestHelp,
+} from '../hooks/useRequestHelp';
 
 const HomePage: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
@@ -72,6 +76,7 @@ const HomePage: React.FC = () => {
 
   // 새로운 Request Help mutation 훅들
   const deleteRequestHelp = useDeleteRequestHelp();
+  const updateRequestHelp = useUpdateRequestHelp();
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -113,12 +118,16 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleAccept = async (
-    id: string,
-    requestData?: { carNumber?: string; userName?: string }
-  ) => {
+  const handleAccept = async (id: string) => {
     try {
-      await reserveHelp.mutateAsync({ id, requestData });
+      await updateRequestHelp.mutateAsync({
+        id: Number(id),
+        data: {
+          helperMemId: user?.id || 0,
+          status: 1,
+          helper: user?.name || '',
+        },
+      });
     } catch (error) {
       console.error('수락 실패:', error);
     }
