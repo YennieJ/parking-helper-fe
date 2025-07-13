@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useMember } from '../hooks/useMember';
+import { useLogin } from '../hooks/useLogin';
 
 interface User {
-  id: string;
+  id: number;
   employeeNumber: string;
   name: string;
   carNumber: string;
@@ -23,8 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const memberMutation = useMember();
+  const loginMutation = useLogin();
 
   useEffect(() => {
     // 페이지 로드 시 저장된 로그인 정보 확인
@@ -36,19 +35,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         localStorage.removeItem('parking_user');
       }
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (employeeNumber: string): Promise<boolean> => {
     try {
-      const result = await memberMutation.mutateAsync({
+      const result = await loginMutation.mutateAsync({
         memberId: employeeNumber,
       });
 
       if (result.Result === 'Success') {
         // API 응답을 프론트엔드 형식으로 변환
         const userData = {
-          id: result.Id.toString(),
+          id: result.Id,
           employeeNumber: result.MemberLoginId,
           name: result.MemberName,
           carNumber: result.Cars?.[0]?.carNumber || '',
@@ -84,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     <AuthContext.Provider
       value={{
         user,
-        isLoading: isLoading || memberMutation.isPending,
+        isLoading: loginMutation.isPending,
         login,
         logout,
         updateUser,

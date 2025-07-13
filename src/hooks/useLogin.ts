@@ -20,8 +20,8 @@ export interface MemberRequest {
   memberId: string;
 }
 
-// memberId로 사용자 정보 조회하는 커스텀 훅
-export const useMember = () => {
+// 로그인 훅
+export const useLogin = () => {
   return useMutation({
     mutationFn: async (data: MemberRequest): Promise<MemberResponse> => {
       return await postData<MemberResponse>('/api/Login', data);
@@ -34,7 +34,3 @@ export const useMember = () => {
     },
   });
 };
-
-// 사용 예시:
-// const memberMutation = useMember();
-// const result = await memberMutation.mutateAsync({ memberId: '0034' });
