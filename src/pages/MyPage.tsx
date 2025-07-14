@@ -76,7 +76,7 @@ const MyPage: React.FC = () => {
                   사원번호
                 </label>
                 <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
-                  {user.employeeNumber}
+                  {user.memberLoginId}
                 </div>
               </div>
 
@@ -86,7 +86,7 @@ const MyPage: React.FC = () => {
                   이름
                 </label>
                 <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
-                  {user.name}
+                  {user.memberName}
                 </div>
               </div>
 
@@ -119,7 +119,7 @@ const MyPage: React.FC = () => {
                   사원번호
                 </label>
                 <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
-                  {user.employeeNumber}
+                  {user.memberLoginId}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   사원번호는 변경할 수 없습니다.
@@ -132,7 +132,7 @@ const MyPage: React.FC = () => {
                   이름
                 </label>
                 <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
-                  {user.name}
+                  {user.memberName}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   이름은 변경할 수 없습니다.

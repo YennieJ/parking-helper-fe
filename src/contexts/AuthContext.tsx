@@ -3,6 +3,7 @@ import { useLogin } from '../hooks/useLogin';
 
 interface User {
   memberId: number;
+  memberLoginId: string;
   memberName: string;
   carId: number;
   carNumber: string;
@@ -50,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // API 응답을 프론트엔드 형식으로 변환
       const userData = {
         memberId: result.id,
+        memberLoginId: result.memberLoginId,
         memberName: result.memberName,
         carId: result.cars?.[0]?.id || 0,
         carNumber: result.cars?.[0]?.carNumber || '',

@@ -9,7 +9,7 @@ import { env } from './config/env';
 import Navigation from './components/Navigation';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
-import EmployeeOfMonth from './pages/EmployeeOfMonth';
+import RankingPage from './pages/RankingPage';
 import LoginPage from './pages/LoginPage';
 import LoadingScreen from './components/LoadingScreen';
 import './App.css';
@@ -36,7 +36,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/my-page" element={<MyPage />} />
-          <Route path="/employee-of-month" element={<EmployeeOfMonth />} />
+          <Route path="/employee-of-month" element={<RankingPage />} />
         </Routes>
       </div>
       <Navigation />
