@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // axios 기본 설정
 const apiClient = axios.create({
-  baseURL: import.meta.env.DEV ? '' : import.meta.env.VITE_API_URL,
+  baseURL: '',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

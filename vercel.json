@@ -3,6 +3,10 @@
     {
       "source": "/((?!api/.*).*)",
       "destination": "/index.html"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "https://parkinghelp.onrender.com/api/$1"
     }
   ]
 }
