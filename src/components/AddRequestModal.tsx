@@ -1,21 +1,30 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useCreateRequestHelp } from '../hooks/useRequestHelp';
 
 interface Props {
   onClose: () => void;
-  onSubmit: (data: { helpReqMemId: number; carId: number }) => void;
-  isLoading: boolean;
 }
 
-const AddRequestModal: React.FC<Props> = ({ onClose, onSubmit }) => {
+const AddRequestModal: React.FC<Props> = ({ onClose }) => {
   const { user } = useAuth();
+  const createRequestHelp = useCreateRequestHelp();
 
   const handleSubmit = () => {
-    onSubmit({
-      helpReqMemId: user?.memberId || 0,
-      carId: user?.carId || 0,
-    });
+    createRequestHelp.mutate(
+      {
+        helpReqMemId: user?.memberId || 0,
+        carId: user?.carId || 0,
+      },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      }
+    );
   };
+
+  const isButtonDisabled = createRequestHelp.isPending;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -33,11 +42,26 @@ const AddRequestModal: React.FC<Props> = ({ onClose, onSubmit }) => {
           </div>
 
           <div className="flex gap-3">
-            <button onClick={onClose} className="btn-outline flex-1">
+            <button
+              onClick={onClose}
+              disabled={isButtonDisabled}
+              className="btn-outline flex-1 disabled:opacity-50"
+            >
               취소
             </button>
-            <button onClick={handleSubmit} className="btn-primary flex-1">
-              요청하기
+            <button
+              onClick={handleSubmit}
+              disabled={isButtonDisabled}
+              className="btn-primary flex-1 disabled:opacity-50"
+            >
+              {isButtonDisabled ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  요청중...
+                </div>
+              ) : (
+                '요청하기'
+              )}
             </button>
           </div>
         </div>

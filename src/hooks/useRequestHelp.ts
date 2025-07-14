@@ -50,7 +50,6 @@ export const useDeleteRequestHelp = () => {
   return useMutation({
     mutationFn: (id: number) => deleteData(`/api/RequestHelp/${id}`),
     onSuccess: () => {
-      // 삭제 성공 시 도움 요청 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['request-help'] });
     },
     onError: (error) => {
@@ -67,7 +66,6 @@ export const useUpdateRequestHelp = () => {
     mutationFn: ({ id, data }: { id: number; data: UpdateRequestHelpData }) =>
       putData(`/api/RequestHelp/${id}`, data),
     onSuccess: () => {
-      // 업데이트 성공 시 도움 요청 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['request-help'] });
     },
     onError: (error) => {
@@ -84,7 +82,6 @@ export const useCreateRequestHelp = () => {
     mutationFn: (data: CreateRequestHelpData) =>
       postData('/api/RequestHelp', data),
     onSuccess: () => {
-      // 생성 성공 시 도움 요청 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['request-help'] });
     },
     onError: (error) => {

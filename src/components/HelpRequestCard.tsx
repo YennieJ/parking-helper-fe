@@ -16,12 +16,6 @@ interface Props {
   onMarkComplete: () => void;
   onRemove: () => void;
   onCancelAcceptance: () => void;
-  loadingState?: {
-    isAccepting?: boolean;
-    isMarkingComplete?: boolean;
-    isRemoving?: boolean;
-    isCancelingAcceptance?: boolean;
-  };
 }
 
 const HelpRequestCard: React.FC<Props> = ({
@@ -30,10 +24,17 @@ const HelpRequestCard: React.FC<Props> = ({
   onMarkComplete,
   onRemove,
   onCancelAcceptance,
-  loadingState = {},
 }) => {
   const { user } = useAuth();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+
+  // 로컬 로딩 상태 관리
+  const [loadingStates, setLoadingStates] = useState({
+    isAccepting: false,
+    isMarkingComplete: false,
+    isRemoving: false,
+    isCancelingAcceptance: false,
+  });
 
   const isOwner = request.helpRequester?.id === user?.memberId;
   const isAcceptedByMe = request.helper?.id === user?.memberId;
@@ -42,22 +43,57 @@ const HelpRequestCard: React.FC<Props> = ({
   const canCancelAcceptance =
     request.status === RequestStatus.REQUEST && isAcceptedByMe;
 
+  // 버튼 핸들러들
+  const handleAccept = () => {
+    setLoadingStates((prev) => ({ ...prev, isAccepting: true }));
+    onAccept();
+    // 성공 후에도 잠시 로딩 유지
+    setTimeout(() => {
+      setLoadingStates((prev) => ({ ...prev, isAccepting: false }));
+    }, 1000);
+  };
+
+  const handleRemove = () => {
+    setLoadingStates((prev) => ({ ...prev, isRemoving: true }));
+    onRemove();
+    // 성공 후에도 잠시 로딩 유지
+    setTimeout(() => {
+      setLoadingStates((prev) => ({ ...prev, isRemoving: false }));
+    }, 1000);
+  };
+
+  const handleCancelAcceptance = () => {
+    setLoadingStates((prev) => ({ ...prev, isCancelingAcceptance: true }));
+    onCancelAcceptance();
+    // 성공 후에도 잠시 로딩 유지
+    setTimeout(() => {
+      setLoadingStates((prev) => ({ ...prev, isCancelingAcceptance: false }));
+    }, 1000);
+  };
+
   const handleCompleteClick = () => {
     setShowCompleteModal(true);
   };
 
   const handleCompleteConfirm = () => {
+    setLoadingStates((prev) => ({ ...prev, isMarkingComplete: true }));
     onMarkComplete();
     setShowCompleteModal(false);
+    // 성공 후에도 잠시 로딩 유지
+    setTimeout(() => {
+      setLoadingStates((prev) => ({ ...prev, isMarkingComplete: false }));
+    }, 1000);
   };
 
   const renderButtons = () => {
     if (request.status === RequestStatus.COMPLETED) {
       return (
         <div className="flex items-center justify-center py-2">
-          <div className="flex items-center gap-2 text-sm text-green-700 font-medium bg-green-50 px-3 py-2 rounded-xl border border-green-200">
-            <span>✅</span>
-            완료됨
+          <div className="text-sm text-green-700 font-medium bg-green-50 px-3 py-2 rounded-xl border border-green-200">
+            <span className="font-semibold">
+              {request.helper?.helperName}님
+            </span>
+            의 도움으로 완료
           </div>
         </div>
       );
@@ -75,11 +111,14 @@ const HelpRequestCard: React.FC<Props> = ({
           <div className="flex gap-2">
             {canCancelAcceptance && (
               <button
-                onClick={onCancelAcceptance}
-                disabled={loadingState.isCancelingAcceptance}
+                onClick={handleCancelAcceptance}
+                disabled={
+                  loadingStates.isCancelingAcceptance ||
+                  loadingStates.isMarkingComplete
+                }
                 className="btn-outline text-sm px-3 py-2 flex-1 disabled:opacity-50"
               >
-                {loadingState.isCancelingAcceptance ? (
+                {loadingStates.isCancelingAcceptance ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-1"></div>
                     취소중...
@@ -93,10 +132,13 @@ const HelpRequestCard: React.FC<Props> = ({
             {canMarkComplete && (
               <button
                 onClick={handleCompleteClick}
-                disabled={loadingState.isMarkingComplete}
+                disabled={
+                  loadingStates.isMarkingComplete ||
+                  loadingStates.isCancelingAcceptance
+                }
                 className="btn-primary text-sm px-3 py-2 flex-1 disabled:opacity-50"
               >
-                {loadingState.isMarkingComplete ? (
+                {loadingStates.isMarkingComplete ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
                     완료중...
@@ -111,16 +153,16 @@ const HelpRequestCard: React.FC<Props> = ({
       );
     }
 
-    // waiting 상태
+    // waiting 상태 - 로딩 중에도 같은 버튼 유지
     return (
       <div className="flex gap-2">
         {!isOwner && (
           <button
-            onClick={onAccept}
-            disabled={loadingState.isAccepting}
+            onClick={handleAccept}
+            disabled={loadingStates.isAccepting || loadingStates.isRemoving}
             className="btn-primary text-sm px-3 py-2 flex-1 disabled:opacity-50"
           >
-            {loadingState.isAccepting ? (
+            {loadingStates.isAccepting ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
                 수락중...
@@ -133,11 +175,11 @@ const HelpRequestCard: React.FC<Props> = ({
 
         {isOwner && (
           <button
-            onClick={onRemove}
-            disabled={loadingState.isRemoving}
+            onClick={handleRemove}
+            disabled={loadingStates.isRemoving || loadingStates.isAccepting}
             className="btn-danger text-sm px-3 py-2 flex-1 disabled:opacity-50"
           >
-            {loadingState.isRemoving ? (
+            {loadingStates.isRemoving ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
                 삭제중...
@@ -197,7 +239,7 @@ const HelpRequestCard: React.FC<Props> = ({
           carNumber={request.reqCar?.carNumber || ''}
           onConfirm={handleCompleteConfirm}
           onCancel={() => setShowCompleteModal(false)}
-          isLoading={loadingState.isMarkingComplete}
+          isLoading={loadingStates.isMarkingComplete}
         />
       )}
     </>

@@ -1,53 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import {
-  // useHelpOffers,
-  // useCreateHelpRequest,
-  // useCreateHelpOffer,
-  // useReserveHelp,
-  // useConfirmHelp,
-  // useCancelHelpRequest,
-  useCompleteHelpRequest,
-  // useCompleteHelpOffer,
-  // useDeleteHelpOffer,
-  // useCancelReservation,
-} from '../hooks/useParkingData';
-import { useAuth } from '../contexts/AuthContext';
+import React from 'react';
+
+// import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import RequestSection from '../components/RequestSection';
 // import OfferSection from '../components/OfferSection';
-import AddRequestModal from '../components/AddRequestModal';
 // import AddOfferModal from '../components/AddOfferModal';
-import {
-  useRequestHelp,
-  useDeleteRequestHelp,
-  useUpdateRequestHelp,
-  useCreateRequestHelp,
-  type CreateRequestHelpData,
-} from '../hooks/useRequestHelp';
-import { RequestStatus } from '../types/requestStatus';
+import { useRequestHelp } from '../hooks/useRequestHelp';
 
 const HomePage: React.FC = () => {
-  const [showRequestModal, setShowRequestModal] = useState(false);
   // const [showOfferModal, setShowOfferModal] = useState(false);
   // const [activeTab, setActiveTab] = useState<'request' | 'offer'>('request');
 
   // AuthContext에서 로그인된 사용자 정보 가져오기
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   // 로그인된 사용자 정보를 콘솔에 출력
-  useEffect(() => {
-    if (user) {
-      console.log('=== 로그인된 사용자 정보 ===');
-      console.log('ID:', user.memberId);
-      console.log('이름:', user.memberName);
-      console.log('차량ID:', user.carId);
-      console.log('차량번호:', user.carNumber);
-      console.log('이메일:', user.email);
-      console.log('========================');
-    } else {
-      console.log('로그인된 사용자가 없습니다.');
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     console.log('=== 로그인된 사용자 정보 ===');
+  //     console.log('ID:', user.memberId);
+  //     console.log('이름:', user.memberName);
+  //     console.log('차량ID:', user.carId);
+  //     console.log('차량번호:', user.carNumber);
+  //     console.log('이메일:', user.email);
+  //     console.log('========================');
+  //   } else {
+  //     console.log('로그인된 사용자가 없습니다.');
+  //   }
+  // }, [user]);
 
   // React Query 훅들
   const {
@@ -56,28 +36,12 @@ const HomePage: React.FC = () => {
     error: requestsError,
   } = useRequestHelp('2025-07-12');
 
-  console.log('helpRequests', helpRequests);
+  // console.log('helpRequests', helpRequests);
 
-  // const {
-  //   data: helpOffers,
-  //   isLoading: offersLoading,
-  //   error: offersError,
-  // } = useHelpOffers();
-
-  // Mutation 훅들
-  // const createRequest = useCreateHelpRequest();
-  const createRequestHelp = useCreateRequestHelp();
   // const createOffer = useCreateHelpOffer();
-  // requestHelp는 Query 훅이므로 제거 (useRequestHelp는 데이터 조회용)
   // const confirmHelp = useConfirmHelp();
-  // const cancelHelpRequest = useCancelHelpRequest();
-  const completeHelpRequest = useCompleteHelpRequest();
   // const completeHelpOffer = useCompleteHelpOffer();
   // const deleteHelpOffer = useDeleteHelpOffer();
-
-  // 새로운 Request Help mutation 훅들
-  const deleteRequestHelp = useDeleteRequestHelp();
-  const updateRequestHelp = useUpdateRequestHelp();
 
   // 현재 날짜/시간을 한국 시간으로 포맷팅
   const getCurrentDateTime = () => {
@@ -94,26 +58,10 @@ const HomePage: React.FC = () => {
     return now.toLocaleDateString('ko-KR', options);
   };
 
-  // 도움 요청 추가 모달 열기
-  const handleAddRequest = () => {
-    setShowRequestModal(true);
-  };
-
   // 도움 제안 추가 모달 열기
   // const handleAddOffer = () => {
   //   setShowOfferModal(true);
   // };
-
-  // 도움 요청 생성 처리
-  const handleCreateRequest = async (data: CreateRequestHelpData) => {
-    console.log('handleCreateRequest', data);
-    try {
-      await createRequestHelp.mutateAsync(data);
-      setShowRequestModal(false);
-    } catch (error) {
-      console.error('요청 등록 실패:', error);
-    }
-  };
 
   // 도움 제안 생성 처리
   // const handleCreateOffer = async (data: any) => {
@@ -124,21 +72,6 @@ const HomePage: React.FC = () => {
   //     console.error('제안 등록 실패:', error);
   //   }
   // };
-
-  // 도움 요청 수락 처리
-  const handleAccept = async (id: string) => {
-    try {
-      await updateRequestHelp.mutateAsync({
-        id: Number(id),
-        data: {
-          helperMemId: user?.memberId || 0,
-          status: RequestStatus.REQUEST,
-        },
-      });
-    } catch (error) {
-      console.error('수락 실패:', error);
-    }
-  };
 
   // 도움 요청 처리 (미구현)
   // const handleRequest = async (id: string) => {
@@ -168,16 +101,6 @@ const HomePage: React.FC = () => {
   //   }
   // };
 
-  // 도움 요청 완료 처리
-  const handleMarkCompleteRequest = async (id: string) => {
-    await updateRequestHelp.mutateAsync({
-      id: Number(id),
-      data: {
-        status: RequestStatus.COMPLETED,
-      },
-    });
-  };
-
   // 도움 제안 완료 처리
   // const handleMarkCompleteOffer = async (id: string) => {
   //   try {
@@ -187,15 +110,6 @@ const HomePage: React.FC = () => {
   //   }
   // };
 
-  // 도움 요청 삭제 처리
-  const handleRemoveRequest = async (id: string) => {
-    try {
-      await deleteRequestHelp.mutateAsync(Number(id));
-    } catch (error) {
-      console.error('삭제 실패:', error);
-    }
-  };
-
   // 도움 제안 삭제 처리
   // const handleRemoveOffer = async (id: string) => {
   //   try {
@@ -204,22 +118,6 @@ const HomePage: React.FC = () => {
   //     console.error('삭제 실패:', error);
   //   }
   // };
-
-  // 도움 수락 취소 처리
-  const handleCancelAcceptance = async (id: string) => {
-    console.log('handleCancelAcceptance', id);
-    try {
-      await updateRequestHelp.mutateAsync({
-        id: Number(id),
-        data: {
-          helperMemId: null,
-          status: RequestStatus.WAITING,
-        },
-      });
-    } catch (error) {
-      console.error('수락 실패:', error);
-    }
-  };
 
   // 도움 요청 취소 처리
   // const handleCancelRequest = async (id: string) => {
@@ -269,26 +167,6 @@ const HomePage: React.FC = () => {
     );
   }
 
-  // Request 카드용 로딩 상태 반환
-  const getRequestLoadingState = (id: string) => {
-    const isUpdatingThisRequest =
-      updateRequestHelp.isPending &&
-      updateRequestHelp.variables?.id === Number(id);
-    const updateData = updateRequestHelp.variables?.data;
-
-    return {
-      isAccepting:
-        isUpdatingThisRequest && updateData?.status === RequestStatus.REQUEST,
-      isMarkingComplete:
-        completeHelpRequest.isPending && completeHelpRequest.variables === id,
-      isRemoving:
-        deleteRequestHelp.isPending &&
-        deleteRequestHelp.variables === Number(id),
-      isCancelingAcceptance:
-        isUpdatingThisRequest && updateData?.status === RequestStatus.WAITING,
-    };
-  };
-
   // Offer 카드용 로딩 상태 반환
   // const getOfferLoadingState = (id: string) => {
   //   return {
@@ -337,14 +215,9 @@ const HomePage: React.FC = () => {
         {/* 차량 등록 요청하기 탭 */}
         {/* {activeTab === 'request' && ( */}
         <RequestSection
-          helpRequests={helpRequests || []}
-          onAddRequest={handleAddRequest}
-          onAccept={handleAccept}
-          onMarkComplete={handleMarkCompleteRequest}
-          onRemove={handleRemoveRequest}
-          onCancelAcceptance={handleCancelAcceptance}
-          loadingState={getRequestLoadingState}
-          isCreating={createRequestHelp.isPending}
+          helpRequests={helpRequests}
+          isLoading={requestsLoading}
+          error={requestsError}
         />
         {/* )} */}
 
@@ -365,13 +238,6 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* 모달들 */}
-      {showRequestModal && (
-        <AddRequestModal
-          onClose={() => setShowRequestModal(false)}
-          onSubmit={handleCreateRequest}
-          isLoading={createRequestHelp.isPending}
-        />
-      )}
 
       {/* {showOfferModal && (
         <AddOfferModal
