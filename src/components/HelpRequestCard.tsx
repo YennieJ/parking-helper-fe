@@ -35,12 +35,12 @@ const HelpRequestCard: React.FC<Props> = ({
   const { user } = useAuth();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const isOwner = request.helpReqMemId === user?.id;
-  const isAcceptedByMe = request.helperMemId === user?.id;
+  const isOwner = request.helpRequester?.id === user?.memberId;
+  const isAcceptedByMe = request.helper?.id === user?.memberId;
   const canMarkComplete =
-    request.status === RequestStatus.RESERVED && isAcceptedByMe;
+    request.status === RequestStatus.REQUEST && isAcceptedByMe;
   const canCancelAcceptance =
-    request.status === RequestStatus.RESERVED && isAcceptedByMe;
+    request.status === RequestStatus.REQUEST && isAcceptedByMe;
 
   const handleCompleteClick = () => {
     setShowCompleteModal(true);
@@ -63,12 +63,12 @@ const HelpRequestCard: React.FC<Props> = ({
       );
     }
 
-    if (request.status === RequestStatus.RESERVED) {
+    if (request.status === RequestStatus.REQUEST) {
       return (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-700 font-medium bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
-              📝 {request.helper}님이 수락
+              📝 {request.helper?.helperName}님이 수락
             </span>
           </div>
 
@@ -169,10 +169,10 @@ const HelpRequestCard: React.FC<Props> = ({
             </div>
             <div>
               <div className="font-semibold text-gray-800">
-                {request.helpRequester}
+                {request.helpRequester?.helpRequesterName}
               </div>
               <div className="text-primary-600 font-medium text-sm">
-                {request.carNumber}
+                {request.reqCar?.carNumber}
               </div>
               <div className="text-xs text-gray-500">
                 {formatToKoreanTime(request.reqDate)} 등록
@@ -193,8 +193,8 @@ const HelpRequestCard: React.FC<Props> = ({
       {/* 완료 확인 모달 */}
       {showCompleteModal && (
         <CompleteConfirmationModal
-          requesterName={request.helpRequester}
-          carNumber={request.carNumber}
+          requesterName={request.helpRequester?.helpRequesterName || ''}
+          carNumber={request.reqCar?.carNumber || ''}
           onConfirm={handleCompleteConfirm}
           onCancel={() => setShowCompleteModal(false)}
           isLoading={loadingState.isMarkingComplete}

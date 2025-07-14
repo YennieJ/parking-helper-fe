@@ -1,33 +1,35 @@
-// HomePage에서 React Query 사용 예시
 import React, { useState, useEffect } from 'react';
 import {
-  useHelpOffers,
-  useCreateHelpRequest,
-  useCreateHelpOffer,
-  useReserveHelp,
-  useConfirmHelp,
-  useCancelHelpRequest,
+  // useHelpOffers,
+  // useCreateHelpRequest,
+  // useCreateHelpOffer,
+  // useReserveHelp,
+  // useConfirmHelp,
+  // useCancelHelpRequest,
   useCompleteHelpRequest,
-  useCompleteHelpOffer,
-  useDeleteHelpOffer,
-  useCancelReservation,
+  // useCompleteHelpOffer,
+  // useDeleteHelpOffer,
+  // useCancelReservation,
 } from '../hooks/useParkingData';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import RequestSection from '../components/RequestSection';
-import OfferSection from '../components/OfferSection';
+// import OfferSection from '../components/OfferSection';
 import AddRequestModal from '../components/AddRequestModal';
-import AddOfferModal from '../components/AddOfferModal';
+// import AddOfferModal from '../components/AddOfferModal';
 import {
   useRequestHelp,
   useDeleteRequestHelp,
   useUpdateRequestHelp,
+  useCreateRequestHelp,
+  type CreateRequestHelpData,
 } from '../hooks/useRequestHelp';
+import { RequestStatus } from '../types/requestStatus';
 
 const HomePage: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [showOfferModal, setShowOfferModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'request' | 'offer'>('request');
+  // const [showOfferModal, setShowOfferModal] = useState(false);
+  // const [activeTab, setActiveTab] = useState<'request' | 'offer'>('request');
 
   // AuthContext에서 로그인된 사용자 정보 가져오기
   const { user } = useAuth();
@@ -36,9 +38,9 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     if (user) {
       console.log('=== 로그인된 사용자 정보 ===');
-      console.log('ID:', user.id);
-      console.log('사원번호:', user.employeeNumber);
-      console.log('이름:', user.name);
+      console.log('ID:', user.memberId);
+      console.log('이름:', user.memberName);
+      console.log('차량ID:', user.carId);
       console.log('차량번호:', user.carNumber);
       console.log('이메일:', user.email);
       console.log('========================');
@@ -56,28 +58,28 @@ const HomePage: React.FC = () => {
 
   console.log('helpRequests', helpRequests);
 
-  const {
-    data: helpOffers,
-    isLoading: offersLoading,
-    error: offersError,
-  } = useHelpOffers();
+  // const {
+  //   data: helpOffers,
+  //   isLoading: offersLoading,
+  //   error: offersError,
+  // } = useHelpOffers();
 
   // Mutation 훅들
-  const createRequest = useCreateHelpRequest();
-  const createOffer = useCreateHelpOffer();
-  const reserveHelp = useReserveHelp();
+  // const createRequest = useCreateHelpRequest();
+  const createRequestHelp = useCreateRequestHelp();
+  // const createOffer = useCreateHelpOffer();
   // requestHelp는 Query 훅이므로 제거 (useRequestHelp는 데이터 조회용)
-  const confirmHelp = useConfirmHelp();
-  const cancelHelpRequest = useCancelHelpRequest();
+  // const confirmHelp = useConfirmHelp();
+  // const cancelHelpRequest = useCancelHelpRequest();
   const completeHelpRequest = useCompleteHelpRequest();
-  const completeHelpOffer = useCompleteHelpOffer();
-  const deleteHelpOffer = useDeleteHelpOffer();
-  const cancelReservation = useCancelReservation();
+  // const completeHelpOffer = useCompleteHelpOffer();
+  // const deleteHelpOffer = useDeleteHelpOffer();
 
   // 새로운 Request Help mutation 훅들
   const deleteRequestHelp = useDeleteRequestHelp();
   const updateRequestHelp = useUpdateRequestHelp();
 
+  // 현재 날짜/시간을 한국 시간으로 포맷팅
   const getCurrentDateTime = () => {
     const now = new Date();
     const options: Intl.DateTimeFormatOptions = {
@@ -92,40 +94,45 @@ const HomePage: React.FC = () => {
     return now.toLocaleDateString('ko-KR', options);
   };
 
+  // 도움 요청 추가 모달 열기
   const handleAddRequest = () => {
     setShowRequestModal(true);
   };
 
-  const handleAddOffer = () => {
-    setShowOfferModal(true);
-  };
+  // 도움 제안 추가 모달 열기
+  // const handleAddOffer = () => {
+  //   setShowOfferModal(true);
+  // };
 
-  const handleCreateRequest = async (data: any) => {
+  // 도움 요청 생성 처리
+  const handleCreateRequest = async (data: CreateRequestHelpData) => {
+    console.log('handleCreateRequest', data);
     try {
-      await createRequest.mutateAsync(data);
+      await createRequestHelp.mutateAsync(data);
       setShowRequestModal(false);
     } catch (error) {
       console.error('요청 등록 실패:', error);
     }
   };
 
-  const handleCreateOffer = async (data: any) => {
-    try {
-      await createOffer.mutateAsync(data);
-      setShowOfferModal(false);
-    } catch (error) {
-      console.error('제안 등록 실패:', error);
-    }
-  };
+  // 도움 제안 생성 처리
+  // const handleCreateOffer = async (data: any) => {
+  //   try {
+  //     await createOffer.mutateAsync(data);
+  //     setShowOfferModal(false);
+  //   } catch (error) {
+  //     console.error('제안 등록 실패:', error);
+  //   }
+  // };
 
+  // 도움 요청 수락 처리
   const handleAccept = async (id: string) => {
     try {
       await updateRequestHelp.mutateAsync({
         id: Number(id),
         data: {
-          helperMemId: user?.id || 0,
-          status: 1,
-          helper: user?.name || '',
+          helperMemId: user?.memberId || 0,
+          status: RequestStatus.REQUEST,
         },
       });
     } catch (error) {
@@ -133,48 +140,54 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleRequest = async (id: string) => {
-    try {
-      // TODO: 실제 도움 요청 API 구현 필요
-      console.log('도움 요청:', id);
-    } catch (error) {
-      console.error('요청 실패:', error);
-    }
-  };
+  // 도움 요청 처리 (미구현)
+  // const handleRequest = async (id: string) => {
+  //   try {
+  //     // TODO: 실제 도움 요청 API 구현 필요
+  //     console.log('도움 요청:', id);
+  //   } catch (error) {
+  //     console.error('요청 실패:', error);
+  //   }
+  // };
 
-  const handleConfirm = async (id: string) => {
-    try {
-      // 해당 offer의 차량번호 정보 찾기
-      const offer = helpOffers?.find((o: any) => o.id === id);
-      const offerData = offer?.requestedByCarNumber
-        ? {
-            carNumber: offer.requestedByCarNumber,
-            userName: offer.requestedBy,
-          }
-        : undefined;
+  // 도움 제안 확인 처리
+  // const handleConfirm = async (id: string) => {
+  //   try {
+  //     // 해당 offer의 차량번호 정보 찾기
+  //     const offer = helpOffers?.find((o: any) => o.id === id);
+  //     const offerData = offer?.requestedByCarNumber
+  //       ? {
+  //           carNumber: offer.requestedByCarNumber,
+  //           userName: offer.requestedBy,
+  //         }
+  //       : undefined;
 
-      await confirmHelp.mutateAsync({ id, offerData });
-    } catch (error) {
-      console.error('확인 실패:', error);
-    }
-  };
+  //     await confirmHelp.mutateAsync({ id, offerData });
+  //   } catch (error) {
+  //     console.error('확인 실패:', error);
+  //   }
+  // };
 
+  // 도움 요청 완료 처리
   const handleMarkCompleteRequest = async (id: string) => {
-    try {
-      await completeHelpRequest.mutateAsync(id);
-    } catch (error) {
-      console.error('완료 처리 실패:', error);
-    }
+    await updateRequestHelp.mutateAsync({
+      id: Number(id),
+      data: {
+        status: RequestStatus.COMPLETED,
+      },
+    });
   };
 
-  const handleMarkCompleteOffer = async (id: string) => {
-    try {
-      await completeHelpOffer.mutateAsync(id);
-    } catch (error) {
-      console.error('완료 처리 실패:', error);
-    }
-  };
+  // 도움 제안 완료 처리
+  // const handleMarkCompleteOffer = async (id: string) => {
+  //   try {
+  //     await completeHelpOffer.mutateAsync(id);
+  //   } catch (error) {
+  //     console.error('완료 처리 실패:', error);
+  //   }
+  // };
 
+  // 도움 요청 삭제 처리
   const handleRemoveRequest = async (id: string) => {
     try {
       await deleteRequestHelp.mutateAsync(Number(id));
@@ -183,32 +196,43 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleRemoveOffer = async (id: string) => {
-    try {
-      await deleteHelpOffer.mutateAsync(id);
-    } catch (error) {
-      console.error('삭제 실패:', error);
-    }
-  };
+  // 도움 제안 삭제 처리
+  // const handleRemoveOffer = async (id: string) => {
+  //   try {
+  //     await deleteHelpOffer.mutateAsync(id);
+  //   } catch (error) {
+  //     console.error('삭제 실패:', error);
+  //   }
+  // };
 
+  // 도움 수락 취소 처리
   const handleCancelAcceptance = async (id: string) => {
+    console.log('handleCancelAcceptance', id);
     try {
-      await cancelReservation.mutateAsync(id);
+      await updateRequestHelp.mutateAsync({
+        id: Number(id),
+        data: {
+          helperMemId: null,
+          status: RequestStatus.WAITING,
+        },
+      });
     } catch (error) {
-      console.error('수락 취소 실패:', error);
+      console.error('수락 실패:', error);
     }
   };
 
-  const handleCancelRequest = async (id: string) => {
-    try {
-      await cancelHelpRequest.mutateAsync(id);
-    } catch (error) {
-      console.error('요청 취소 실패:', error);
-    }
-  };
+  // 도움 요청 취소 처리
+  // const handleCancelRequest = async (id: string) => {
+  //   try {
+  //     await cancelHelpRequest.mutateAsync(id);
+  //   } catch (error) {
+  //     console.error('요청 취소 실패:', error);
+  //   }
+  // };
 
   // 로딩 상태 처리
-  if (requestsLoading || offersLoading) {
+  // if (requestsLoading || offersLoading) {
+  if (requestsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center">
         <div className="text-center">
@@ -220,7 +244,8 @@ const HomePage: React.FC = () => {
   }
 
   // 에러 상태 처리
-  if (requestsError || offersError) {
+  // if (requestsError || offersError) {
+  if (requestsError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center">
         <div className="text-center p-6">
@@ -244,32 +269,38 @@ const HomePage: React.FC = () => {
     );
   }
 
-  // Request 카드용 로딩 상태
+  // Request 카드용 로딩 상태 반환
   const getRequestLoadingState = (id: string) => {
+    const isUpdatingThisRequest =
+      updateRequestHelp.isPending &&
+      updateRequestHelp.variables?.id === Number(id);
+    const updateData = updateRequestHelp.variables?.data;
+
     return {
-      isAccepting: reserveHelp.isPending && reserveHelp.variables?.id === id,
+      isAccepting:
+        isUpdatingThisRequest && updateData?.status === RequestStatus.REQUEST,
       isMarkingComplete:
         completeHelpRequest.isPending && completeHelpRequest.variables === id,
       isRemoving:
         deleteRequestHelp.isPending &&
         deleteRequestHelp.variables === Number(id),
       isCancelingAcceptance:
-        cancelReservation.isPending && cancelReservation.variables === id,
+        isUpdatingThisRequest && updateData?.status === RequestStatus.WAITING,
     };
   };
 
-  // Offer 카드용 로딩 상태
-  const getOfferLoadingState = (id: string) => {
-    return {
-      isRequesting: false, // TODO: 실제 도움 요청 API 구현 필요
-      isConfirming: confirmHelp.isPending && confirmHelp.variables?.id === id,
-      isMarkingComplete:
-        completeHelpOffer.isPending && completeHelpOffer.variables === id,
-      isRemoving: deleteHelpOffer.isPending && deleteHelpOffer.variables === id,
-      isCancelingRequest:
-        cancelHelpRequest.isPending && cancelHelpRequest.variables === id,
-    };
-  };
+  // Offer 카드용 로딩 상태 반환
+  // const getOfferLoadingState = (id: string) => {
+  //   return {
+  //     isRequesting: false, // TODO: 실제 도움 요청 API 구현 필요
+  //     isConfirming: confirmHelp.isPending && confirmHelp.variables?.id === id,
+  //     isMarkingComplete:
+  //       completeHelpOffer.isPending && completeHelpOffer.variables === id,
+  //     isRemoving: deleteHelpOffer.isPending && deleteHelpOffer.variables === id,
+  //     isCancelingRequest:
+  //       cancelHelpRequest.isPending && cancelHelpRequest.variables === id,
+  //   };
+  // };
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-primary-50">
@@ -277,7 +308,7 @@ const HomePage: React.FC = () => {
       <Header title={getCurrentDateTime()} icon="📅" />
 
       {/* 탭 네비게이션 */}
-      <div className="px-4 py-3">
+      {/* <div className="px-4 py-3">
         <div className="flex space-x-1 bg-gray-200 rounded-xl p-2 mt-1 md:max-w-[700px] mx-auto">
           <button
             onClick={() => setActiveTab('request')}
@@ -300,25 +331,25 @@ const HomePage: React.FC = () => {
             차량 등록 도와주기 ({helpOffers?.length || 0})
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="p-4 md:max-w-[700px] mx-auto">
         {/* 차량 등록 요청하기 탭 */}
-        {activeTab === 'request' && (
-          <RequestSection
-            helpRequests={helpRequests || []}
-            onAddRequest={handleAddRequest}
-            onAccept={handleAccept}
-            onMarkComplete={handleMarkCompleteRequest}
-            onRemove={handleRemoveRequest}
-            onCancelAcceptance={handleCancelAcceptance}
-            loadingState={getRequestLoadingState}
-            isCreating={createRequest.isPending}
-          />
-        )}
+        {/* {activeTab === 'request' && ( */}
+        <RequestSection
+          helpRequests={helpRequests || []}
+          onAddRequest={handleAddRequest}
+          onAccept={handleAccept}
+          onMarkComplete={handleMarkCompleteRequest}
+          onRemove={handleRemoveRequest}
+          onCancelAcceptance={handleCancelAcceptance}
+          loadingState={getRequestLoadingState}
+          isCreating={createRequestHelp.isPending}
+        />
+        {/* )} */}
 
         {/* 차량 등록 도와주기 탭 */}
-        {activeTab === 'offer' && (
+        {/* {activeTab === 'offer' && (
           <OfferSection
             helpOffers={helpOffers || []}
             onAddOffer={handleAddOffer}
@@ -330,7 +361,7 @@ const HomePage: React.FC = () => {
             loadingState={getOfferLoadingState}
             isCreating={createOffer.isPending}
           />
-        )}
+        )} */}
       </div>
 
       {/* 모달들 */}
@@ -338,17 +369,17 @@ const HomePage: React.FC = () => {
         <AddRequestModal
           onClose={() => setShowRequestModal(false)}
           onSubmit={handleCreateRequest}
-          isLoading={createRequest.isPending}
+          isLoading={createRequestHelp.isPending}
         />
       )}
 
-      {showOfferModal && (
+      {/* {showOfferModal && (
         <AddOfferModal
           onClose={() => setShowOfferModal(false)}
           onSubmit={handleCreateOffer}
           isLoading={createOffer.isPending}
         />
-      )}
+      )} */}
     </div>
   );
 };

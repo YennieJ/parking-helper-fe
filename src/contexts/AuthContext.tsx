@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useLogin } from '../hooks/useLogin';
 
 interface User {
-  id: number;
-  employeeNumber: string;
-  name: string;
+  memberId: number;
+  memberName: string;
+  carId: number;
   carNumber: string;
   email: string;
 }
@@ -49,9 +49,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // HTTP 상태 코드가 200이면 성공, 400이면 에러가 이미 던져짐
       // API 응답을 프론트엔드 형식으로 변환
       const userData = {
-        id: result.id,
-        employeeNumber: result.memberLoginId,
-        name: result.memberName,
+        memberId: result.id,
+        memberName: result.memberName,
+        carId: result.cars?.[0]?.id || 0,
         carNumber: result.cars?.[0]?.carNumber || '',
         email: result.email,
       };

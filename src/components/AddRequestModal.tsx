@@ -1,22 +1,19 @@
 import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Props {
   onClose: () => void;
-  onSubmit: (data: { userName: string; carNumber: string }) => void;
+  onSubmit: (data: { helpReqMemId: number; carId: number }) => void;
   isLoading: boolean;
 }
 
 const AddRequestModal: React.FC<Props> = ({ onClose, onSubmit }) => {
-  // 임시 사용자 정보 (실제로는 로그인된 사용자 정보를 가져와야 함)
-  const currentUser = {
-    name: '김철수',
-    carNumber: '12가 3456',
-  };
+  const { user } = useAuth();
 
   const handleSubmit = () => {
     onSubmit({
-      userName: currentUser.name,
-      carNumber: currentUser.carNumber,
+      helpReqMemId: user?.memberId || 0,
+      carId: user?.carId || 0,
     });
   };
 
@@ -30,7 +27,7 @@ const AddRequestModal: React.FC<Props> = ({ onClose, onSubmit }) => {
               도움 요청하기
             </h2>
             <div className="text-sm text-gray-600 mb-4">
-              내 차량: {currentUser.carNumber} ({currentUser.name})
+              내 차량: {user?.carNumber} ({user?.memberName})
             </div>
             <p className="text-gray-700">주차 도움이 필요하신가요?</p>
           </div>
