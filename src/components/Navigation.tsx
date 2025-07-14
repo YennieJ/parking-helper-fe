@@ -27,7 +27,7 @@ const Navigation: React.FC = () => {
 
   const navItems = [
     { path: '/', icon: '🏠', label: '홈' },
-    { path: '/employee-of-month', icon: '🏆', label: '이달의사원' },
+    { path: '/ranking', icon: '🏆', label: '이달의사원' },
     {
       path: '/parking-register',
       icon: '🚗',

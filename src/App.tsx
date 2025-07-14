@@ -36,7 +36,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/my-page" element={<MyPage />} />
-          <Route path="/employee-of-month" element={<RankingPage />} />
+          <Route path="/ranking" element={<RankingPage />} />
         </Routes>
       </div>
       <Navigation />
