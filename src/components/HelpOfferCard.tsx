@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useToast } from '../components/Toast';
-import { MESSAGES, createMessage } from '../utils/messages';
+// import { useToast } from '../components/Toast';
+import { MESSAGES } from '../utils/messages';
 import CompleteConfirmationModal from './CompleteConfirmationModal';
 
 interface HelpOffer {
@@ -41,10 +41,10 @@ const HelpOfferCard: React.FC<Props> = ({
   loadingState = {},
 }) => {
   const { user } = useAuth();
-  const { showSuccess } = useToast();
+  // const { showSuccess } = useToast();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const isRequestedByMe = offer.requestedById === user?.id;
+  const isRequestedByMe = offer.requestedById === user?.memberId;
   const canConfirm = offer.status === 'requested' && offer.isOwner; // 작성자만 확인 가능
   const canMarkComplete = offer.status === 'confirmed' && offer.isOwner; // 작성자만 완료 가능
   const canCancelRequest = offer.status === 'requested' && isRequestedByMe; // 요청자만 취소 가능
@@ -59,26 +59,26 @@ const HelpOfferCard: React.FC<Props> = ({
     setShowCompleteModal(false);
   };
 
-  const handleCopyCarNumber = async () => {
-    const carNumber = offer.requestedByCarNumber || '';
+  // const handleCopyCarNumber = async () => {
+  //   const carNumber = offer.requestedByCarNumber || '';
 
-    try {
-      await navigator.clipboard.writeText(carNumber);
-      const message = createMessage.carNumber.copied(carNumber);
-      showSuccess(message.title, message.message);
-    } catch (error) {
-      console.error('복사 실패:', error);
-      // 클립보드 API가 지원되지 않는 경우 fallback
-      const textArea = document.createElement('textarea');
-      textArea.value = carNumber;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      const message = createMessage.carNumber.copied(carNumber);
-      showSuccess(message.title, message.message);
-    }
-  };
+  //   try {
+  //     await navigator.clipboard.writeText(carNumber);
+  //     const message = createMessage.carNumber.copied(carNumber);
+  //     showSuccess(message.title, message.message);
+  //   } catch (error) {
+  //     console.error('복사 실패:', error);
+  //     // 클립보드 API가 지원되지 않는 경우 fallback
+  //     const textArea = document.createElement('textarea');
+  //     textArea.value = carNumber;
+  //     document.body.appendChild(textArea);
+  //     textArea.select();
+  //     document.execCommand('copy');
+  //     document.body.removeChild(textArea);
+  //     const message = createMessage.carNumber.copied(carNumber);
+  //     showSuccess(message.title, message.message);
+  //   }
+  // };
 
   const renderButtons = () => {
     if (offer.status === 'completed') {
