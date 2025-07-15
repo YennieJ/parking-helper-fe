@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleParkingWebsite = () => {
@@ -34,7 +34,11 @@ const Navigation: React.FC = () => {
       label: '주차등록 (C2115)',
       isExternal: true,
     },
-    { path: '/my-page', icon: '👤', label: '내페이지' },
+    {
+      path: '/my-page',
+      icon: '👤',
+      label: `${user?.memberName || '내페이지'}님`,
+    },
   ];
 
   return (
