@@ -15,13 +15,13 @@ import LoadingScreen from './components/LoadingScreen';
 import './App.css';
 
 const AppContent: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoggingIn } = useAuth();
 
   if (!user) {
     return (
       <div className="relative">
         <LoginPage />
-        {isLoading && (
+        {isLoggingIn && (
           <div className="absolute inset-0 z-50">
             <LoadingScreen />
           </div>

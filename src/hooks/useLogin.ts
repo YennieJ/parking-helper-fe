@@ -25,13 +25,23 @@ export interface MemberRequest {
 }
 
 // 로그인 훅
-export const useLogin = () => {
+export const useLogin = (onSuccess?: (userData: any) => void) => {
   return useMutation({
     mutationFn: async (data: MemberRequest): Promise<MemberResponse> => {
       return await postData<MemberResponse>('/api/Login', data);
     },
     onSuccess: (data) => {
-      console.log('사용자 정보 조회 성공:', data);
+      const userData = {
+        memberId: data.id,
+        memberLoginId: data.memberLoginId,
+        memberName: data.memberName,
+        carId: data.cars?.[0]?.id || 0,
+        carNumber: data.cars?.[0]?.carNumber || '',
+        email: data.email,
+      };
+
+      // 콜백 함수 호출
+      onSuccess?.(userData);
     },
     onError: (error) => {
       console.error('사용자 정보 조회 실패:', error);

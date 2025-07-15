@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useLogin } from '../hooks/useLogin';
 
 interface User {
   memberId: number;
@@ -12,8 +11,9 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  login: (employeeNumber: string) => Promise<boolean>;
+  isLoggingIn: boolean;
+  setLoginUser: (userData: User) => void;
+  setLoggingIn: (isLoading: boolean) => void;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
 }
@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-  const loginMutation = useLogin();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     // 페이지 로드 시 저장된 로그인 정보 확인
@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const parsedUser = JSON.parse(savedUser);
         // id를 명시적으로 숫자로 변환
-        parsedUser.id = Number(parsedUser.id);
+        parsedUser.memberId = Number(parsedUser.memberId);
         setUser(parsedUser);
       } catch (error) {
         localStorage.removeItem('parking_user');
@@ -41,30 +41,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const login = async (employeeNumber: string): Promise<boolean> => {
-    try {
-      const result = await loginMutation.mutateAsync({
-        memberLoginId: employeeNumber,
-      });
+  const setLoginUser = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('parking_user', JSON.stringify(userData));
+  };
 
-      // HTTP 상태 코드가 200이면 성공, 400이면 에러가 이미 던져짐
-      // API 응답을 프론트엔드 형식으로 변환
-      const userData = {
-        memberId: result.id,
-        memberLoginId: result.memberLoginId,
-        memberName: result.memberName,
-        carId: result.cars?.[0]?.id || 0,
-        carNumber: result.cars?.[0]?.carNumber || '',
-        email: result.email,
-      };
-
-      setUser(userData);
-      localStorage.setItem('parking_user', JSON.stringify(userData));
-      return true;
-    } catch (error) {
-      console.error('로그인 실패:', error);
-      return false;
-    }
+  const setLoggingIn = (isLoading: boolean) => {
+    setIsLoggingIn(isLoading);
   };
 
   const logout = () => {
@@ -84,8 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     <AuthContext.Provider
       value={{
         user,
-        isLoading: loginMutation.isPending,
-        login,
+        isLoggingIn,
+        setLoginUser,
+        setLoggingIn,
         logout,
         updateUser,
       }}
