@@ -77,54 +77,71 @@ const RankingPage: React.FC = () => {
     <div className="bg-gradient-to-br from-gray-50 to-primary-50">
       {/* 헤더 */}
       <Header
-        title={`${getCurrentMonth()} 이달의 사원`}
+        title={`${getCurrentMonth()} 이달의 직원`}
         icon="🏆"
         subtitle="주차 도움을 가장 많이 완료한 직원들입니다"
       />
 
       <div className="p-4 space-y-4  md:max-w-[700px] mx-auto">
-        {rankings?.map((ranking, index) => (
-          <div
-            key={ranking.id}
-            className={`card border-2 ${getRankBg(index + 1)}`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="text-3xl">{getRankIcon(index + 1)}</div>
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-gray-800">
-                      {index + 1}위
-                    </span>
-                    <span className="text-xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      {ranking.memberName}
-                    </span>
+        {/* 데이터가 없는 경우 */}
+        {!rankings || rankings.length === 0 ? (
+          <div className="bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-5">
+            <div className="text-center py-16">
+              <div className="text-8xl mb-6">🌟</div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                아직 랭킹 데이터가 없어요
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                이번 달에 주차 도움을 완료한 직원이 없습니다.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {rankings?.map((ranking, index) => (
+              <div
+                key={ranking.id}
+                className={`card border-2 ${getRankBg(index + 1)}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="text-3xl">{getRankIcon(index + 1)}</div>
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg font-bold text-gray-800">
+                          {index + 1}위
+                        </span>
+                        <span className="text-xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          {ranking.memberName}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {ranking.totalHelpCount}
+                    </div>
+                    <div className="text-sm text-gray-600">건 완료</div>
                   </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-blue-600">
-                  {ranking.totalHelpCount}
-                </div>
-                <div className="text-sm text-gray-600">건 완료</div>
-              </div>
-            </div>
 
-            {/* 1위만 특별 효과 */}
-            {ranking.id === 1 && (
-              <div className="mt-3 pt-3 border-t border-yellow-300">
-                <div className="text-center">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-400 text-yellow-900">
-                    🎉 이달의 최고 주차 도움 완료자 🎉
-                  </span>
-                </div>
+                {/* 1위만 특별 효과 */}
+                {ranking.id === 1 && (
+                  <div className="mt-3 pt-3 border-t border-yellow-300">
+                    <div className="text-center">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-400 text-yellow-900">
+                        🎉 이달의 최고 주차 도움 완료자 🎉
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+            ))}
+          </>
+        )}
 
-        {/* 격려 메시지 */}
-        <div className="card bg-blue-50 border-blue-200">
+        {/* 격려 메시지 - 항상 표시 */}
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
           <div className="text-center">
             <div className="text-2xl mb-2">🤝</div>
             <h3 className="text-lg font-semibold text-blue-800 mb-2">
