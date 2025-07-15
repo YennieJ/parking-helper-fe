@@ -38,7 +38,8 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
       duration: toast.duration || 4000,
     };
 
-    setToasts((prev) => [...prev, newToast]);
+    // 기존 토스트를 모두 제거하고 새 토스트만 표시
+    setToasts([newToast]);
 
     // 자동으로 토스트 제거
     setTimeout(() => {
@@ -111,8 +112,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
   };
 
   const getToastStyles = () => {
-    // 모든 스낵바를 파란색으로 통일
-    return 'bg-blue-500 text-white border-blue-600';
+    // 모든 스낵바를 흰색 계열로 통일
+    return 'bg-white text-gray-800 border-gray-200 shadow-lg';
   };
 
   const getIcon = () => {
@@ -131,17 +132,23 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
         rounded-xl shadow-xl border-2 p-4 backdrop-blur-lg
       `}
     >
-      <div className="flex items-start gap-3">
-        <span className="text-xl flex-shrink-0 mt-0.5">{getIcon()}</span>
+      <div className="flex items-center gap-3">
+        <span className="text-xl flex-shrink-0">{getIcon()}</span>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm">{toast.title}</div>
+          {toast.title && (
+            <div className="font-semibold text-sm">{toast.title}</div>
+          )}
           {toast.message && (
-            <div className="text-sm opacity-90 mt-1">{toast.message}</div>
+            <div
+              className={`text-sm opacity-90 ${toast.title ? 'mt-1' : 'mt-0'}`}
+            >
+              {toast.message}
+            </div>
           )}
         </div>
         <button
           onClick={handleClose}
-          className="flex-shrink-0 text-white/80 hover:text-white transition-colors"
+          className="flex-shrink-0 text-gray-500 hover:text-gray-700 transition-colors"
         >
           <span className="text-lg">×</span>
         </button>
