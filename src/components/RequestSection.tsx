@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import HelpRequestCard from './HelpRequestCard';
-import { MESSAGES } from '../utils/messages';
+import { MESSAGES, createMessage } from '../utils/messages';
 import { useAuth } from '../contexts/AuthContext';
 import {
   useDeleteRequestHelp,
@@ -9,6 +9,7 @@ import {
 } from '../hooks/useRequestHelp';
 import { RequestStatus } from '../types/requestStatus';
 import AddRequestModal from './AddRequestModal';
+import { useToast } from '../components/Toast';
 
 interface RequestSectionProps {
   helpRequests: RequestHelp[] | undefined;
@@ -23,6 +24,7 @@ const RequestSection: React.FC<RequestSectionProps> = ({
 }) => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
 
   // Mutation 훅들
   const deleteRequestHelp = useDeleteRequestHelp();
@@ -30,44 +32,67 @@ const RequestSection: React.FC<RequestSectionProps> = ({
 
   // 도움 요청 추가 모달 열기
   const handleAddRequest = () => {
+    // 차번호가 없는 경우 토스트로 안내
+    if (!user?.carNumber) {
+      showError(
+        '차량 정보 없음',
+        '등록된 차량이 없습니다. 주차 등록 사이트에서 차량을 등록한 후 다시 시도해주세요.'
+      );
+      return;
+    }
     setShowRequestModal(true);
   };
 
   // 도움 요청 수락 처리
   const handleAccept = async (id: string) => {
-    await updateRequestHelp.mutateAsync({
-      id: Number(id),
-      data: {
-        helperMemId: user?.memberId || 0,
-        status: RequestStatus.REQUEST,
-      },
-    });
-  };
+    try {
+      await updateRequestHelp.mutateAsync({
+        id: Number(id),
+        data: {
+          helperMemId: user?.memberId || 0,
+          status: RequestStatus.REQUEST,
+        },
+      });
 
-  // 도움 요청 완료 처리
-  const handleMarkCompleteRequest = async (id: string) => {
-    await updateRequestHelp.mutateAsync({
-      id: Number(id),
-      data: {
-        status: RequestStatus.COMPLETED,
-      },
-    });
+      // 차량번호 복사 메시지 표시
+      const request = helpRequests?.find((r) => r.id.toString() === id);
+      if (request?.reqCar?.carNumber) {
+        const message = createMessage.helpRequest.accepted(
+          request.reqCar.carNumber
+        );
+        showSuccess(message.title, message.message);
+      } else {
+        showSuccess('수락 완료', MESSAGES.HELP_REQUEST.ACCEPTED);
+      }
+    } catch (error) {
+      showError('수락 실패', MESSAGES.HELP_REQUEST.ACCEPT_FAILED);
+    }
   };
 
   // 도움 요청 삭제 처리
   const handleRemoveRequest = async (id: string) => {
-    await deleteRequestHelp.mutateAsync(Number(id));
+    try {
+      await deleteRequestHelp.mutateAsync(Number(id));
+      showSuccess('삭제 완료', MESSAGES.HELP_REQUEST.DELETED);
+    } catch (error) {
+      showError('삭제 실패', MESSAGES.HELP_REQUEST.DELETE_FAILED);
+    }
   };
 
   // 도움 수락 취소 처리
   const handleCancelAcceptance = async (id: string) => {
-    await updateRequestHelp.mutateAsync({
-      id: Number(id),
-      data: {
-        helperMemId: null,
-        status: RequestStatus.WAITING,
-      },
-    });
+    try {
+      await updateRequestHelp.mutateAsync({
+        id: Number(id),
+        data: {
+          helperMemId: null,
+          status: RequestStatus.WAITING,
+        },
+      });
+      showSuccess('취소 완료', MESSAGES.HELP_REQUEST.CANCELLED);
+    } catch (error) {
+      showError('취소 실패', MESSAGES.HELP_REQUEST.CANCEL_FAILED);
+    }
   };
 
   // 로딩 상태 처리
@@ -119,9 +144,6 @@ const RequestSection: React.FC<RequestSectionProps> = ({
             key={request.id}
             request={request}
             onAccept={() => handleAccept(request.id.toString())}
-            onMarkComplete={() =>
-              handleMarkCompleteRequest(request.id.toString())
-            }
             onRemove={() => handleRemoveRequest(request.id.toString())}
             onCancelAcceptance={() =>
               handleCancelAcceptance(request.id.toString())
