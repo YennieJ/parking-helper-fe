@@ -9,11 +9,12 @@ import type { RequestStatusType } from '../types/requestStatus';
 import CompleteConfirmationModal from './CompleteConfirmationModal';
 import type { RequestHelp } from '../hooks/useRequestHelp';
 import { formatToKoreanTime } from '../utils/formatToKoreanTime';
+import { useToast } from './Toast';
+import { MESSAGES } from '../utils/messages';
 
 interface Props {
   request: RequestHelp;
   onAccept: () => void;
-  onMarkComplete: () => void;
   onRemove: () => void;
   onCancelAcceptance: () => void;
 }
@@ -21,11 +22,11 @@ interface Props {
 const HelpRequestCard: React.FC<Props> = ({
   request,
   onAccept,
-  onMarkComplete,
   onRemove,
   onCancelAcceptance,
 }) => {
   const { user } = useAuth();
+  const { showSuccess } = useToast();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   // 로컬 로딩 상태 관리
@@ -43,9 +44,36 @@ const HelpRequestCard: React.FC<Props> = ({
   const canCancelAcceptance =
     request.status === RequestStatus.REQUEST && isAcceptedByMe;
 
+  // 차량번호 복사 함수
+  const copyCarNumber = async (carNumber: string): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(carNumber);
+      return true;
+    } catch (error) {
+      // 클립보드 API가 지원되지 않는 경우 fallback
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = carNumber;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return true;
+      } catch (fallbackError) {
+        return false;
+      }
+    }
+  };
+
   // 버튼 핸들러들
-  const handleAccept = () => {
+  const handleAccept = async () => {
     setLoadingStates((prev) => ({ ...prev, isAccepting: true }));
+
+    // 차량번호 복사 시도
+    if (request.reqCar?.carNumber) {
+      await copyCarNumber(request.reqCar.carNumber);
+    }
+
     onAccept();
     // 성공 후에도 잠시 로딩 유지
     setTimeout(() => {
@@ -75,16 +103,6 @@ const HelpRequestCard: React.FC<Props> = ({
     setShowCompleteModal(true);
   };
 
-  const handleCompleteConfirm = () => {
-    setLoadingStates((prev) => ({ ...prev, isMarkingComplete: true }));
-    onMarkComplete();
-    setShowCompleteModal(false);
-    // 성공 후에도 잠시 로딩 유지
-    setTimeout(() => {
-      setLoadingStates((prev) => ({ ...prev, isMarkingComplete: false }));
-    }, 1000);
-  };
-
   const renderButtons = () => {
     if (request.status === RequestStatus.COMPLETED) {
       return (
@@ -103,9 +121,11 @@ const HelpRequestCard: React.FC<Props> = ({
       return (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-700 font-medium bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
-              📝 {request.helper?.helperName}님이 수락
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700 font-medium bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
+                📝 {request.helper?.helperName}님이 수락
+              </span>
+            </div>
           </div>
 
           <div className="flex gap-2">
@@ -213,8 +233,37 @@ const HelpRequestCard: React.FC<Props> = ({
               <div className="font-semibold text-gray-800">
                 {request.helpRequester?.helpRequesterName}
               </div>
-              <div className="text-primary-600 font-medium text-sm">
-                {request.reqCar?.carNumber}
+              <div className="flex items-center gap-2">
+                <div className="text-primary-600 font-medium text-sm">
+                  {request.reqCar?.carNumber &&
+                  request.status === RequestStatus.REQUEST &&
+                  request.helper?.id === user?.memberId
+                    ? request.reqCar.carNumber
+                    : ''}
+                </div>
+                {request.reqCar?.carNumber &&
+                  request.status === RequestStatus.REQUEST &&
+                  request.helper?.id === user?.memberId && (
+                    <button
+                      onClick={async () => {
+                        const copySuccess = await copyCarNumber(
+                          request.reqCar.carNumber
+                        );
+                        if (copySuccess) {
+                          showSuccess(
+                            MESSAGES.CAR_NUMBER.COPY_WITH_NUMBER(
+                              request.reqCar.carNumber
+                            )
+                          );
+                        }
+                      }}
+                      className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded-lg border border-blue-200 transition-colors flex items-center gap-1"
+                      title="차량번호 복사"
+                    >
+                      <span>📋</span>
+                      <span>복사</span>
+                    </button>
+                  )}
               </div>
               <div className="text-xs text-gray-500">
                 {formatToKoreanTime(request.reqDate)} 등록
@@ -235,11 +284,10 @@ const HelpRequestCard: React.FC<Props> = ({
       {/* 완료 확인 모달 */}
       {showCompleteModal && (
         <CompleteConfirmationModal
+          requestId={request.id}
           requesterName={request.helpRequester?.helpRequesterName || ''}
           carNumber={request.reqCar?.carNumber || ''}
-          onConfirm={handleCompleteConfirm}
           onCancel={() => setShowCompleteModal(false)}
-          isLoading={loadingStates.isMarkingComplete}
         />
       )}
     </>
