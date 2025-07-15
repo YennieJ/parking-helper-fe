@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
+import { useUpdateMember } from '../hooks/useMember';
 import Header from '../components/Header';
 import LogoutIcon from '../components/icons/LogoutIcon';
 
 const MyPage: React.FC = () => {
   const { user, logout } = useAuth();
   const { showSuccess, showError } = useToast();
+  const { mutate: updateMember, isPending } = useUpdateMember();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -46,9 +48,33 @@ const MyPage: React.FC = () => {
         return;
       }
 
-      showSuccess('차량번호 수정 완료', '차량번호가 업데이트되었습니다.');
-      setIsEditing(false);
-      setCarNumberError('');
+      if (isCarNumberChanged && editData.carNumber) {
+        updateMember(
+          {
+            id: user.memberId.toString(),
+            data: { carNumber: editData.carNumber },
+          },
+          {
+            onSuccess: () => {
+              showSuccess(
+                '차량번호 수정 완료',
+                '차량번호가 업데이트되었습니다.'
+              );
+              setIsEditing(false);
+              setCarNumberError('');
+            },
+            onError: () => {
+              showError(
+                '차량번호 수정 실패',
+                '차량번호 업데이트에 실패했습니다.'
+              );
+            },
+          }
+        );
+      } else {
+        setIsEditing(false);
+        setCarNumberError('');
+      }
     } catch (error) {
       showError('차량번호 수정 실패', '차량번호 업데이트에 실패했습니다.');
     }
@@ -190,10 +216,10 @@ const MyPage: React.FC = () => {
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={!isCarNumberChanged}
+                  disabled={!isCarNumberChanged || isPending}
                   className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  저장하기
+                  {isPending ? '저장 중...' : '저장하기'}
                 </button>
               </div>
             </div>
