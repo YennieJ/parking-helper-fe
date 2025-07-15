@@ -1,5 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 
+/**
+ * 토스트 메시지 인터페이스
+ */
 interface Toast {
   id: string;
   type: 'success' | 'error' | 'warning' | 'info';
@@ -8,6 +11,9 @@ interface Toast {
   duration?: number;
 }
 
+/**
+ * 토스트 컨텍스트 타입
+ */
 interface ToastContextType {
   showToast: (toast: Omit<Toast, 'id'>) => void;
   showSuccess: (title: string, message?: string) => void;
@@ -17,6 +23,9 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+/**
+ * 토스트 훅 - 토스트 컨텍스트를 사용하기 위한 훅
+ */
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
@@ -25,11 +34,19 @@ export const useToast = () => {
   return context;
 };
 
+/**
+ * 토스트 프로바이더 컴포넌트
+ * 전역 토스트 상태를 관리하고 토스트 메시지를 표시
+ */
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  /**
+   * 토스트 메시지를 표시
+   * @param toast - 표시할 토스트 정보
+   */
   const showToast = (toast: Omit<Toast, 'id'>) => {
     const id = Date.now().toString();
     const newToast: Toast = {
@@ -47,18 +64,30 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
     }, newToast.duration);
   };
 
+  /**
+   * 성공 토스트 메시지 표시
+   */
   const showSuccess = (title: string, message?: string) => {
     showToast({ type: 'success', title, message });
   };
 
+  /**
+   * 에러 토스트 메시지 표시
+   */
   const showError = (title: string, message?: string) => {
     showToast({ type: 'error', title, message });
   };
 
+  /**
+   * 경고 토스트 메시지 표시
+   */
   const showWarning = (title: string, message?: string) => {
     showToast({ type: 'warning', title, message });
   };
 
+  /**
+   * 토스트 메시지 제거
+   */
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
@@ -73,11 +102,18 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+/**
+ * 토스트 컨테이너 컴포넌트 Props
+ */
 interface ToastContainerProps {
   toasts: Toast[];
   onRemove: (id: string) => void;
 }
 
+/**
+ * 토스트 컨테이너 컴포넌트
+ * 모든 토스트 메시지를 관리하고 표시
+ */
 const ToastContainer: React.FC<ToastContainerProps> = ({
   toasts,
   onRemove,
@@ -93,11 +129,18 @@ const ToastContainer: React.FC<ToastContainerProps> = ({
   );
 };
 
+/**
+ * 토스트 아이템 컴포넌트 Props
+ */
 interface ToastItemProps {
   toast: Toast;
   onRemove: (id: string) => void;
 }
 
+/**
+ * 개별 토스트 메시지 컴포넌트
+ * 토스트 메시지의 표시와 애니메이션을 담당
+ */
 const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -106,16 +149,25 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
     setIsVisible(true);
   }, []);
 
+  /**
+   * 토스트 닫기 처리
+   */
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => onRemove(toast.id), 300);
   };
 
+  /**
+   * 토스트 스타일 클래스 반환
+   */
   const getToastStyles = () => {
     // 모든 스낵바를 흰색 계열로 통일
     return 'bg-white text-gray-800 border-gray-200 shadow-lg';
   };
 
+  /**
+   * 토스트 아이콘 반환
+   */
   const getIcon = () => {
     // 모든 스낵바에 동일한 아이콘 사용
     return '📢';

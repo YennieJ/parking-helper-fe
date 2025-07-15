@@ -1,10 +1,16 @@
-// src/types/errors.ts
+/**
+ * API 에러 인터페이스
+ */
 export interface ApiError {
   code: string;
   message: string;
   details?: any;
 }
 
+/**
+ * 주차 API 에러 인터페이스
+ * API 응답과 함께 에러 정보를 포함
+ */
 export interface ParkingApiError extends Error {
   response?: {
     status: number;
@@ -16,7 +22,10 @@ export interface ParkingApiError extends Error {
   };
 }
 
-// 에러 코드 정의
+/**
+ * 에러 코드 정의
+ * 애플리케이션에서 사용되는 모든 에러 코드를 중앙에서 관리
+ */
 export const ERROR_CODES = {
   // 예약 관련 에러
   ALREADY_RESERVED: 'ALREADY_RESERVED',
@@ -33,7 +42,10 @@ export const ERROR_CODES = {
   SERVER_ERROR: 'SERVER_ERROR',
 } as const;
 
-// 에러 메시지 정의
+/**
+ * 에러 메시지 정의
+ * 각 에러 코드에 대응하는 사용자 친화적인 메시지
+ */
 export const ERROR_MESSAGES = {
   [ERROR_CODES.ALREADY_RESERVED]: '이미 다른 사람이 예약했습니다.',
   [ERROR_CODES.CANNOT_RESERVE_OWN]: '본인이 등록한 것은 예약할 수 없습니다.',

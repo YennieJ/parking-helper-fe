@@ -4,19 +4,24 @@ import { QueryClientProvider } from '@tanstack/react-query';
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ToastProvider } from './components/Toast';
+import { ToastProvider } from './shared/components/ui/Toast';
 import { env } from './config/env';
-import Navigation from './components/Navigation';
+import Navigation from './shared/components/layout/Navigation';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
 import RankingPage from './pages/RankingPage';
 import LoginPage from './pages/LoginPage';
-import LoadingScreen from './components/LoadingScreen';
+import LoadingScreen from './shared/components/layout/LoadingScreen';
 import './App.css';
 
+/**
+ * 앱 컨텐츠 컴포넌트
+ * 인증 상태에 따라 로그인 페이지 또는 메인 앱을 렌더링
+ */
 const AppContent: React.FC = () => {
   const { user, isLoggingIn } = useAuth();
 
+  // 사용자가 로그인하지 않은 경우 로그인 페이지 표시
   if (!user) {
     return (
       <div className="relative">
@@ -30,6 +35,7 @@ const AppContent: React.FC = () => {
     );
   }
 
+  // 로그인된 사용자를 위한 메인 앱 레이아웃
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-1 pb-20 ">
@@ -44,6 +50,10 @@ const AppContent: React.FC = () => {
   );
 };
 
+/**
+ * 메인 앱 컴포넌트
+ * 프로바이더들과 라우팅을 설정
+ */
 function App() {
   useEffect(() => {
     // 앱 제목 설정

@@ -1,14 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import { getData } from '../lib/axios';
+import { getData } from '../../lib/axios';
 
-// Ranking 타입 정의
+/**
+ * 랭킹 아이템 인터페이스
+ */
 export interface RankingItem {
   id: number;
   totalHelpCount: number;
   memberName: string;
 }
 
-// Ranking 데이터 가져오기 훅
+/**
+ * 랭킹 데이터를 가져오는 커스텀 훅
+ * 이달의 사원 랭킹 정보를 조회하고 캐싱
+ */
 export const useRanking = () => {
   return useQuery({
     queryKey: ['ranking'],

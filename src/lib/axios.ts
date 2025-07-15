@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-// axios 기본 설정
+/**
+ * axios 기본 설정
+ * 타임아웃과 기본 헤더를 설정
+ */
 const apiClient = axios.create({
   baseURL: '',
   timeout: 10000,
@@ -9,7 +12,12 @@ const apiClient = axios.create({
   },
 });
 
-// POST 요청을 위한 기본 함수
+/**
+ * POST 요청을 위한 기본 함수
+ * @param url - 요청 URL
+ * @param data - 요청 데이터
+ * @returns Promise<T> - 응답 데이터
+ */
 export const postData = async <T = any>(
   url: string,
   data?: any
@@ -31,7 +39,12 @@ export const postData = async <T = any>(
   }
 };
 
-// GET 요청을 위한 기본 함수
+/**
+ * GET 요청을 위한 기본 함수
+ * @param url - 요청 URL
+ * @param params - 쿼리 파라미터
+ * @returns Promise<T> - 응답 데이터
+ */
 export const getData = async <T = any>(
   url: string,
   params?: any
@@ -53,7 +66,12 @@ export const getData = async <T = any>(
   }
 };
 
-// PUT 요청을 위한 기본 함수
+/**
+ * PUT 요청을 위한 기본 함수
+ * @param url - 요청 URL
+ * @param data - 요청 데이터
+ * @returns Promise<T> - 응답 데이터
+ */
 export const putData = async <T = any>(url: string, data?: any): Promise<T> => {
   try {
     const response = await apiClient.put<T>(url, data);
@@ -72,7 +90,11 @@ export const putData = async <T = any>(url: string, data?: any): Promise<T> => {
   }
 };
 
-// DELETE 요청을 위한 기본 함수
+/**
+ * DELETE 요청을 위한 기본 함수
+ * @param url - 요청 URL
+ * @returns Promise<T> - 응답 데이터
+ */
 export const deleteData = async <T = any>(url: string): Promise<T> => {
   try {
     const response = await apiClient.delete<T>(url);

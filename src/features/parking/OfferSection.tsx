@@ -1,6 +1,6 @@
 import React from 'react';
 import HelpOfferCard from './HelpOfferCard';
-import { MESSAGES } from '../utils/messages';
+import { MESSAGES } from '../../shared/utils/messages';
 
 interface OfferSectionProps {
   helpOffers: any[];

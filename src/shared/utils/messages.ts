@@ -1,4 +1,7 @@
-// 카테고리별 메시지 관리
+/**
+ * 카테고리별 메시지 관리
+ * 애플리케이션 전체에서 사용되는 메시지들을 중앙에서 관리
+ */
 export const MESSAGES = {
   // 도움 요청 관련
   HELP_REQUEST: {
@@ -95,56 +98,89 @@ export const MESSAGES = {
   },
 } as const;
 
-// 메시지 생성 유틸리티 함수들
+/**
+ * 메시지 생성 유틸리티 함수들
+ * 동적으로 메시지를 생성하고 포맷팅하는 함수들
+ */
 export const createMessage = {
   // 도움 요청 관련
   helpRequest: {
+    /**
+     * 도움 요청 수락 성공 메시지
+     */
     accepted: (carNumber: string) => ({
       title: MESSAGES.HELP_REQUEST.ACCEPTED,
       message: MESSAGES.CAR_NUMBER.COPY_WITH_NUMBER(carNumber),
     }),
 
+    /**
+     * 도움 요청 수락 성공 (복사 실패) 메시지
+     */
     acceptedCopyFailed: (carNumber: string) => ({
       title: MESSAGES.HELP_REQUEST.ACCEPTED,
       message: MESSAGES.CAR_NUMBER.SHOW_WITH_COPY_FAILED(carNumber),
     }),
 
+    /**
+     * 도움 요청 수락 실패 메시지
+     */
     acceptFailed: (error?: string) => ({
       title: MESSAGES.HELP_REQUEST.ACCEPT_FAILED,
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
     }),
 
+    /**
+     * 도움 요청 완료 메시지
+     */
     completed: () => ({
       title: MESSAGES.HELP_REQUEST.COMPLETED,
       message: '주차 도움이 성공적으로 완료되었습니다.',
     }),
 
+    /**
+     * 도움 요청 완료 실패 메시지
+     */
     completeFailed: (error?: string) =>
       createMessage.error.complete('request', error),
   },
 
   // 도움 제안 관련
   helpOffer: {
+    /**
+     * 도움 제안 수락 성공 메시지
+     */
     accepted: () => ({
       title: MESSAGES.HELP_OFFER.ACCEPTED,
       message: MESSAGES.HELP_OFFER.PROVIDER_WILL_CONTACT,
     }),
 
+    /**
+     * 도움 제안 확인 성공 메시지
+     */
     confirmed: (carNumber: string) => ({
       title: MESSAGES.HELP_OFFER.CONFIRMED,
       message: MESSAGES.CAR_NUMBER.COPY_WITH_NUMBER(carNumber),
     }),
 
+    /**
+     * 도움 제안 확인 성공 (복사 실패) 메시지
+     */
     confirmedCopyFailed: (carNumber: string) => ({
       title: MESSAGES.HELP_OFFER.CONFIRMED,
       message: MESSAGES.CAR_NUMBER.SHOW_WITH_COPY_FAILED(carNumber),
     }),
 
+    /**
+     * 도움 제안 수락 실패 메시지
+     */
     acceptFailed: (error?: string) => ({
       title: MESSAGES.HELP_OFFER.ACCEPT_FAILED,
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
     }),
 
+    /**
+     * 도움 제안 확인 실패 메시지
+     */
     confirmFailed: (error?: string) => ({
       title: MESSAGES.HELP_OFFER.CONFIRM_FAILED,
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
@@ -153,11 +189,17 @@ export const createMessage = {
 
   // 차량번호 관련
   carNumber: {
+    /**
+     * 차량번호 복사 성공 메시지
+     */
     copied: (carNumber: string) => ({
       title: MESSAGES.CAR_NUMBER.COPIED,
       message: carNumber,
     }),
 
+    /**
+     * 차량번호 복사 실패 메시지
+     */
     copyFailed: (error?: string) => ({
       title: MESSAGES.CAR_NUMBER.COPY_FAILED,
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
@@ -166,6 +208,9 @@ export const createMessage = {
 
   // 공통 에러
   error: {
+    /**
+     * 생성 실패 에러 메시지
+     */
     create: (type: 'request' | 'offer', error?: string) => ({
       title:
         type === 'request'
@@ -174,6 +219,9 @@ export const createMessage = {
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
     }),
 
+    /**
+     * 완료 실패 에러 메시지
+     */
     complete: (type: 'request' | 'offer', error?: string) => ({
       title:
         type === 'request'
@@ -182,6 +230,9 @@ export const createMessage = {
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
     }),
 
+    /**
+     * 취소 실패 에러 메시지
+     */
     cancel: (type: 'request' | 'offer', error?: string) => ({
       title:
         type === 'request'
@@ -190,6 +241,9 @@ export const createMessage = {
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
     }),
 
+    /**
+     * 삭제 실패 에러 메시지
+     */
     delete: (type: 'request' | 'offer', error?: string) => ({
       title:
         type === 'request'
@@ -199,68 +253,106 @@ export const createMessage = {
     }),
 
     // HTTP 상태 코드별 에러
+    /**
+     * 네트워크 에러 메시지
+     */
     network: (error?: string) => ({
       title: MESSAGES.SYSTEM.NETWORK_ERROR_TITLE,
       message: error || MESSAGES.SYSTEM.NETWORK_ERROR,
     }),
 
+    /**
+     * 서버 에러 메시지
+     */
     server: (error?: string) => ({
       title: MESSAGES.SYSTEM.SERVER_ERROR_TITLE,
       message: error || MESSAGES.SYSTEM.SERVER_ERROR,
     }),
 
+    /**
+     * 404 Not Found 에러 메시지
+     */
     notFound: (error?: string) => ({
       title: '오류가 발생했습니다',
       message:
         error || '네트워크에 문제가 생겼습니다. 관리자에게 문의해주세요.',
     }),
 
+    /**
+     * 401 Unauthorized 에러 메시지
+     */
     unauthorized: (error?: string) => ({
       title: MESSAGES.SYSTEM.UNAUTHORIZED_ERROR_TITLE,
       message: error || '로그인이 필요합니다.',
     }),
 
+    /**
+     * 403 Forbidden 에러 메시지
+     */
     forbidden: (error?: string) => ({
       title: MESSAGES.SYSTEM.FORBIDDEN_ERROR_TITLE,
       message: error || '접근 권한이 없습니다.',
     }),
 
+    /**
+     * 400 Bad Request 에러 메시지
+     */
     badRequest: (error?: string) => ({
       title: MESSAGES.SYSTEM.BAD_REQUEST_ERROR_TITLE,
       message: error || '잘못된 요청입니다.',
     }),
 
+    /**
+     * 500 Internal Server Error 메시지
+     */
     internalServer: (error?: string) => ({
       title: MESSAGES.SYSTEM.INTERNAL_SERVER_ERROR_TITLE,
       message: error || MESSAGES.SYSTEM.SERVER_ERROR,
     }),
 
+    /**
+     * 503 Service Unavailable 에러 메시지
+     */
     serviceUnavailable: (error?: string) => ({
       title: MESSAGES.SYSTEM.SERVICE_UNAVAILABLE_ERROR_TITLE,
       message: error || '서비스가 일시적으로 사용할 수 없습니다.',
     }),
 
+    /**
+     * 타임아웃 에러 메시지
+     */
     timeout: (error?: string) => ({
       title: MESSAGES.SYSTEM.TIMEOUT_ERROR_TITLE,
       message: error || '요청 시간이 초과되었습니다.',
     }),
 
+    /**
+     * 유효성 검사 에러 메시지
+     */
     validation: (error?: string) => ({
       title: MESSAGES.SYSTEM.VALIDATION_ERROR_TITLE,
       message: error || '입력값이 올바르지 않습니다.',
     }),
 
+    /**
+     * 권한 에러 메시지
+     */
     permission: (error?: string) => ({
       title: MESSAGES.SYSTEM.PERMISSION_ERROR_TITLE,
       message: error || '권한이 없습니다.',
     }),
 
+    /**
+     * 데이터 에러 메시지
+     */
     data: (error?: string) => ({
       title: MESSAGES.SYSTEM.DATA_ERROR_TITLE,
       message: error || MESSAGES.SYSTEM.DATA_LOAD_FAILED,
     }),
 
-    // 일반적인 에러 (기본값)
+    /**
+     * 일반적인 에러 (기본값)
+     */
     general: (error?: string) => ({
       title: MESSAGES.SYSTEM.ERROR_TITLE,
       message: error || '사원번호가 올바르지 않습니다.',

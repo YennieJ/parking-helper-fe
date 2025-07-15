@@ -1,23 +1,37 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 
+/**
+ * 네비게이션 컴포넌트
+ * 하단 네비게이션 바와 로그아웃 모달을 제공
+ */
 const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  /**
+   * 주차 등록 사이트로 이동
+   */
   const handleParkingWebsite = () => {
     // 실제 주차 등록 사이트 URL로 변경 필요
     window.open('http://gidc001.iptime.org:35052/nxpmsc/login', '_blank');
   };
 
+  /**
+   * 로그아웃 처리
+   */
   const handleLogout = () => {
     logout();
     setShowLogoutModal(false);
   };
 
+  /**
+   * 페이지 네비게이션 처리
+   * @param path - 이동할 경로
+   */
   const handleNavigation = (path: string) => {
     // 스크롤을 최상단으로 이동
     window.scrollTo(0, 0);
@@ -25,6 +39,9 @@ const Navigation: React.FC = () => {
     navigate(path);
   };
 
+  /**
+   * 네비게이션 아이템 정의
+   */
   const navItems = [
     { path: '/', icon: '🏠', label: '홈' },
     { path: '/ranking', icon: '🏆', label: '이달의사원' },
@@ -43,6 +60,7 @@ const Navigation: React.FC = () => {
 
   return (
     <>
+      {/* 하단 네비게이션 바 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 px-4 py-2 grid grid-cols-4 gap-1 shadow-lg">
         {navItems.map((item) =>
           item.isExternal ? (

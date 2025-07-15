@@ -1,17 +1,28 @@
-// src/hooks/useParkingData.ts
+/**
+ * 주차 데이터 관련 커스텀 훅들
+ * 주차 도움 요청/제안의 CRUD 작업을 처리하는 훅들을 모아둔 파일
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockParkingApi } from '../utils/mockData';
-import { parkingApi } from '../api/parkingApi';
-import { env } from '../config/env';
-import { useToast } from '../components/Toast';
-import { ERROR_CODES, ERROR_MESSAGES } from '../types/errors';
-import { createMessage } from '../utils/messages';
-import type { ParkingApiError } from '../types/errors';
+import { mockParkingApi } from '../../shared/utils/mockData';
+import { parkingApi } from './parkingApi';
+import { env } from '../../config/env';
+import { useToast } from '../../shared/components/ui/Toast';
+import { ERROR_CODES, ERROR_MESSAGES } from '../../shared/types/errors';
+import { createMessage } from '../../shared/utils/messages';
+import type { ParkingApiError } from '../../shared/types/errors';
 
-// 환경에 따라 API 클라이언트 선택
+/**
+ * 환경에 따라 API 클라이언트 선택
+ * 개발 환경에서는 목 데이터, 프로덕션에서는 실제 API 사용
+ */
 const apiClient = env.IS_DEVELOPMENT ? mockParkingApi : parkingApi;
 
-// 에러 처리 헬퍼 함수
+/**
+ * 에러 처리 헬퍼 함수
+ * API 에러를 사용자 친화적인 메시지로 변환
+ * @param error - API 에러 객체
+ * @returns 에러 제목과 메시지
+ */
 const getErrorMessage = (
   error: ParkingApiError
 ): { title: string; message: string } => {
@@ -40,7 +51,12 @@ const getErrorMessage = (
   };
 };
 
-// 차량번호 복사 유틸리티 함수
+/**
+ * 차량번호 복사 유틸리티 함수
+ * 클립보드 API를 사용하여 차량번호를 복사
+ * @param carNumber - 복사할 차량번호
+ * @returns 복사 성공 여부
+ */
 const copyCarNumber = async (carNumber: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(carNumber);
@@ -61,7 +77,9 @@ const copyCarNumber = async (carNumber: string): Promise<boolean> => {
   }
 };
 
-// 차량 등록 요청하기 요청들 가져오기
+/**
+ * 도움 요청 목록을 가져오는 훅
+ */
 export const useHelpRequests = () => {
   return useQuery({
     queryKey: ['helpRequests'],
@@ -69,7 +87,9 @@ export const useHelpRequests = () => {
   });
 };
 
-// 차량 등록 도와주기 제안들 가져오기
+/**
+ * 도움 제안 목록을 가져오는 훅
+ */
 export const useHelpOffers = () => {
   return useQuery({
     queryKey: ['helpOffers'],
@@ -77,7 +97,9 @@ export const useHelpOffers = () => {
   });
 };
 
-// 내 페이지 데이터 가져오기
+/**
+ * 내 페이지 데이터를 가져오는 훅
+ */
 export const useMyData = () => {
   return useQuery({
     queryKey: ['myData'],
@@ -85,7 +107,9 @@ export const useMyData = () => {
   });
 };
 
-// 이달의 사원 데이터 가져오기
+/**
+ * 이달의 사원 데이터를 가져오는 훅
+ */
 export const useEmployeeOfMonth = () => {
   return useQuery({
     queryKey: ['employeeOfMonth'],
@@ -93,7 +117,9 @@ export const useEmployeeOfMonth = () => {
   });
 };
 
-// 새 요청 등록
+/**
+ * 새 도움 요청을 등록하는 훅
+ */
 export const useCreateHelpRequest = () => {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
@@ -111,7 +137,9 @@ export const useCreateHelpRequest = () => {
   });
 };
 
-// 새 제안 등록
+/**
+ * 새 도움 제안을 등록하는 훅
+ */
 export const useCreateHelpOffer = () => {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();

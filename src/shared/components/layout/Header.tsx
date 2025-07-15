@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * 헤더 컴포넌트 Props
+ */
 interface HeaderProps {
   title: string;
   icon?: string;
@@ -12,6 +15,10 @@ interface HeaderProps {
   className?: string;
 }
 
+/**
+ * 페이지 헤더 컴포넌트
+ * 페이지 제목, 아이콘, 우측 액션 버튼을 표시
+ */
 const Header: React.FC<HeaderProps> = ({
   title,
   icon,
@@ -24,6 +31,7 @@ const Header: React.FC<HeaderProps> = ({
       className={`bg-white/80 backdrop-blur-lg border-b border-gray-200/50 px-4 py-4 shadow-sm h-16 flex items-center ${className}`}
     >
       <div className="flex items-center justify-between w-full md:max-w-[670px] mx-auto">
+        {/* 왼쪽 영역: 아이콘과 제목 */}
         <div className="flex items-center gap-3">
           {icon && <span className="text-xl">{icon}</span>}
           <div className="flex flex-col justify-center">
@@ -35,6 +43,8 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </div>
         </div>
+
+        {/* 우측 영역: 액션 버튼 */}
         {rightAction && (
           <button
             onClick={rightAction.onClick}

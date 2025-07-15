@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useLogin } from '../hooks/useLogin';
-import { useToast } from '../components/Toast';
-import { MESSAGES } from '../utils/messages';
+import { useLogin } from '../features/auth/useLogin';
+import { useToast } from '../shared/components/ui/Toast';
+import { MESSAGES } from '../shared/utils/messages';
 
+/**
+ * 로그인 페이지 컴포넌트
+ * 사원번호를 입력받아 사용자 인증을 처리
+ */
 const LoginPage: React.FC = () => {
   const [employeeNumber, setEmployeeNumber] = useState('');
   const [error, setError] = useState('');
@@ -13,8 +17,12 @@ const LoginPage: React.FC = () => {
   const loginMutation = useLogin((userData) => {
     setLoginUser(userData);
   });
-  const { showSuccess, showError } = useToast();
+  const { showSuccess } = useToast();
 
+  /**
+   * 로그인 폼 제출 처리
+   * @param e - 폼 이벤트
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

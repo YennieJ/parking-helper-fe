@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useToast } from '../components/Toast';
-import { useUpdateMember } from '../hooks/useMember';
-import Header from '../components/Header';
-import LogoutIcon from '../components/icons/LogoutIcon';
+import { useToast } from '../shared/components/ui/Toast';
+import { useUpdateMember } from '../features/member/useMember';
+import Header from '../shared/components/layout/Header';
+import LogoutIcon from '../shared/components/icons/LogoutIcon';
 
+/**
+ * 내 페이지 컴포넌트
+ * 사용자 정보 조회 및 차량번호 수정 기능을 제공
+ */
 const MyPage: React.FC = () => {
   const { user, logout } = useAuth();
   const { showSuccess, showError } = useToast();
@@ -16,25 +20,42 @@ const MyPage: React.FC = () => {
   });
   const [carNumberError, setCarNumberError] = useState('');
 
+  /**
+   * 차량번호 유효성 검사 정규식
+   */
   const carNumberRegex = /^[0-9]{2,3}[가-힣][0-9]{4}$/;
 
   if (!user) return null;
 
+  /**
+   * 로그아웃 처리
+   */
   const handleLogout = () => {
     logout();
     setShowLogoutModal(false);
   };
 
+  /**
+   * 편집 모드 시작
+   */
   const handleEdit = () => {
     setIsEditing(true);
     setCarNumberError('');
   };
 
+  /**
+   * 차량번호 유효성 검사
+   * @param carNumber - 검사할 차량번호
+   * @returns 유효성 여부
+   */
   const validateCarNumber = (carNumber: string): boolean => {
     const cleanCarNumber = carNumber.replace(/\s/g, '');
     return carNumberRegex.test(cleanCarNumber);
   };
 
+  /**
+   * 저장 처리
+   */
   const handleSave = async () => {
     try {
       if (
@@ -80,6 +101,9 @@ const MyPage: React.FC = () => {
     }
   };
 
+  /**
+   * 편집 취소 처리
+   */
   const handleCancel = () => {
     setEditData({
       carNumber: user?.carNumber || '',
@@ -88,6 +112,9 @@ const MyPage: React.FC = () => {
     setCarNumberError('');
   };
 
+  /**
+   * 차량번호 입력 변경 처리
+   */
   const handleCarNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
 
@@ -100,6 +127,9 @@ const MyPage: React.FC = () => {
     }
   };
 
+  /**
+   * 차량번호 변경 여부 확인
+   */
   const isCarNumberChanged = editData.carNumber !== (user?.carNumber || '');
 
   return (
@@ -227,6 +257,7 @@ const MyPage: React.FC = () => {
         </div>
       </div>
 
+      {/* 로그아웃 모달 */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl">

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { createMessage } from '../utils/messages';
 
+/**
+ * 에러 정보 인터페이스
+ */
 export interface ErrorInfo {
   title: string;
   message: string;
@@ -20,9 +23,18 @@ export interface ErrorInfo {
     | 'general';
 }
 
+/**
+ * 에러 처리를 위한 커스텀 훅
+ * HTTP 상태 코드별로 적절한 에러 메시지를 생성하고 관리
+ */
 export const useErrorHandler = () => {
   const [error, setError] = useState<string>('');
 
+  /**
+   * 에러를 처리하고 적절한 에러 정보를 반환
+   * @param error - 처리할 에러 객체
+   * @returns ErrorInfo - 에러 정보 객체
+   */
   const handleError = (error: any): ErrorInfo => {
     const status = error?.response?.status;
     // 서버 에러 메시지는 사용하지 않고 우리가 정한 메시지만 사용
@@ -101,6 +113,9 @@ export const useErrorHandler = () => {
     }
   };
 
+  /**
+   * 에러 상태를 초기화
+   */
   const clearError = () => {
     setError('');
   };

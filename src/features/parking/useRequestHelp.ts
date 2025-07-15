@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getData, deleteData, putData, postData } from '../lib/axios';
+import { getData, deleteData, putData, postData } from '../../lib/axios';
 
-// 도움 요청 타입
+/**
+ * 도움 요청 타입 정의
+ */
 export interface RequestHelp {
   id: number;
   reqDate: string;
@@ -18,19 +20,26 @@ export interface RequestHelp {
   status?: 'Waiting' | 'Check' | 'Completed';
 }
 
-// 도움 요청 업데이트 타입
+/**
+ * 도움 요청 업데이트 타입 정의
+ */
 export interface UpdateRequestHelpData {
   helperMemId?: number | null;
   status: 'Waiting' | 'Check' | 'Completed';
 }
 
-// 도움 요청 생성 타입
+/**
+ * 도움 요청 생성 타입 정의
+ */
 export interface CreateRequestHelpData {
   helpReqMemId: number;
   carId: number;
 }
 
-// 도움 요청 목록 조회 훅
+/**
+ * 도움 요청 목록을 조회하는 훅
+ * @param FromReqDate - 조회 시작 날짜 (선택사항)
+ */
 export const useRequestHelp = (FromReqDate?: string) => {
   return useQuery({
     queryKey: ['request-help', FromReqDate],
@@ -43,7 +52,9 @@ export const useRequestHelp = (FromReqDate?: string) => {
   });
 };
 
-// 도움 요청 삭제 mutation 훅
+/**
+ * 도움 요청을 삭제하는 mutation 훅
+ */
 export const useDeleteRequestHelp = () => {
   const queryClient = useQueryClient();
 
@@ -58,7 +69,9 @@ export const useDeleteRequestHelp = () => {
   });
 };
 
-// 도움 요청 업데이트 mutation 훅
+/**
+ * 도움 요청을 업데이트하는 mutation 훅
+ */
 export const useUpdateRequestHelp = () => {
   const queryClient = useQueryClient();
 
@@ -74,7 +87,9 @@ export const useUpdateRequestHelp = () => {
   });
 };
 
-// 도움 요청 생성 mutation 훅
+/**
+ * 도움 요청을 생성하는 mutation 훅
+ */
 export const useCreateRequestHelp = () => {
   const queryClient = useQueryClient();
 

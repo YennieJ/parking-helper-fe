@@ -1,7 +1,11 @@
 import React from 'react';
-import Header from '../components/Header';
-import { useRanking } from '../hooks/useRanking';
+import Header from '../shared/components/layout/Header';
+import { useRanking } from '../features/ranking/useRanking';
 
+/**
+ * 랭킹 페이지 컴포넌트
+ * 이달의 주차 도움 완료 랭킹을 표시
+ */
 const RankingPage: React.FC = () => {
   const { data: rankings, isLoading, error } = useRanking();
 
@@ -42,6 +46,11 @@ const RankingPage: React.FC = () => {
     );
   }
 
+  /**
+   * 순위에 따른 아이콘 반환
+   * @param rank - 순위
+   * @returns 순위 아이콘
+   */
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
@@ -55,6 +64,11 @@ const RankingPage: React.FC = () => {
     }
   };
 
+  /**
+   * 순위에 따른 배경 스타일 반환
+   * @param rank - 순위
+   * @returns 배경 클래스
+   */
   const getRankBg = (rank: number) => {
     switch (rank) {
       case 1:
@@ -68,6 +82,10 @@ const RankingPage: React.FC = () => {
     }
   };
 
+  /**
+   * 현재 월 정보 반환
+   * @returns 현재 년월 문자열
+   */
   const getCurrentMonth = () => {
     const now = new Date();
     return `${now.getFullYear()}년 ${now.getMonth() + 1}월`;

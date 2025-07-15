@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useUpdateRequestHelp } from '../hooks/useRequestHelp';
-import { useToast } from './Toast';
-import { createMessage } from '../utils/messages';
-import { RequestStatus } from '../types/requestStatus';
-import { useErrorHandler } from '../hooks/useErrorHandler';
-import ErrorDisplay from './common/ErrorDisplay';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUpdateRequestHelp } from './useRequestHelp';
+import { useToast } from '../../shared/components/ui/Toast';
+import { createMessage } from '../../shared/utils/messages';
+import { RequestStatus } from '../../shared/types/requestStatus';
+import { useErrorHandler } from '../../shared/hooks/useErrorHandler';
+import ErrorDisplay from '../../shared/components/common/ErrorDisplay';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {

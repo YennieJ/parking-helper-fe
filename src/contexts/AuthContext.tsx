@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+/**
+ * 사용자 정보 인터페이스
+ */
 interface User {
   memberId: number;
   memberLoginId: string;
@@ -9,6 +12,9 @@ interface User {
   email: string;
 }
 
+/**
+ * 인증 컨텍스트 타입
+ */
 interface AuthContextType {
   user: User | null;
   isLoggingIn: boolean;
@@ -20,6 +26,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * 인증 프로바이더 컴포넌트
+ * 사용자 로그인 상태와 정보를 전역적으로 관리
+ */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -41,20 +51,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  /**
+   * 로그인 사용자 정보 설정
+   * @param userData - 사용자 정보
+   */
   const setLoginUser = (userData: User) => {
     setUser(userData);
     localStorage.setItem('parking_user', JSON.stringify(userData));
   };
 
+  /**
+   * 로그인 상태 설정
+   * @param isLoading - 로그인 진행 중 여부
+   */
   const setLoggingIn = (isLoading: boolean) => {
     setIsLoggingIn(isLoading);
   };
 
+  /**
+   * 로그아웃 처리
+   */
   const logout = () => {
     setUser(null);
     localStorage.removeItem('parking_user');
   };
 
+  /**
+   * 사용자 정보 부분 업데이트
+   * @param userData - 업데이트할 사용자 정보
+   */
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
@@ -79,6 +104,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+/**
+ * 인증 컨텍스트 훅
+ * AuthProvider 내부에서만 사용 가능
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

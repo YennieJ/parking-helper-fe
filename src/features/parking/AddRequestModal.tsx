@@ -1,10 +1,10 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useCreateRequestHelp } from '../hooks/useRequestHelp';
-import { useToast } from '../components/Toast';
-import { MESSAGES } from '../utils/messages';
-import { useErrorHandler } from '../hooks/useErrorHandler';
-import ErrorDisplay from './common/ErrorDisplay';
+import { useAuth } from '../../contexts/AuthContext';
+import { useCreateRequestHelp } from './useRequestHelp';
+import { useToast } from '../../shared/components/ui/Toast';
+import { MESSAGES } from '../../shared/utils/messages';
+import { useErrorHandler } from '../../shared/hooks/useErrorHandler';
+import ErrorDisplay from '../../shared/components/common/ErrorDisplay';
 
 interface Props {
   onClose: () => void;

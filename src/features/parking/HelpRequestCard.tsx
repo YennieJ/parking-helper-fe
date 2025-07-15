@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   RequestStatus,
   getRequestStatusText,
   getRequestStatusColor,
-} from '../types/requestStatus';
-import type { RequestStatusType } from '../types/requestStatus';
+} from '../../shared/types/requestStatus';
+import type { RequestStatusType } from '../../shared/types/requestStatus';
 import CompleteConfirmationModal from './CompleteConfirmationModal';
-import type { RequestHelp } from '../hooks/useRequestHelp';
-import { formatToKoreanTime } from '../utils/formatToKoreanTime';
-import { useToast } from './Toast';
-import { MESSAGES } from '../utils/messages';
+import type { RequestHelp } from './useRequestHelp';
+import { formatToKoreanTime } from '../../shared/utils/formatToKoreanTime';
+import { useToast } from '../../shared/components/ui/Toast';
+import { MESSAGES } from '../../shared/utils/messages';
 
 interface Props {
   request: RequestHelp;

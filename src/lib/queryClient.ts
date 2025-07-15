@@ -1,5 +1,9 @@
 import { QueryClient } from '@tanstack/react-query';
 
+/**
+ * React Query 클라이언트 설정
+ * 전역 쿼리 설정과 캐싱 정책을 관리
+ */
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

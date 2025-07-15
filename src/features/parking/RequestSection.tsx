@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import HelpRequestCard from './HelpRequestCard';
-import { MESSAGES, createMessage } from '../utils/messages';
-import { useAuth } from '../contexts/AuthContext';
+import { MESSAGES, createMessage } from '../../shared/utils/messages';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   useDeleteRequestHelp,
   useUpdateRequestHelp,
   type RequestHelp,
-} from '../hooks/useRequestHelp';
-import { RequestStatus } from '../types/requestStatus';
+} from './useRequestHelp';
+import { RequestStatus } from '../../shared/types/requestStatus';
 import AddRequestModal from './AddRequestModal';
-import { useToast } from '../components/Toast';
+import { useToast } from '../../shared/components/ui/Toast';
 
 interface RequestSectionProps {
   helpRequests: RequestHelp[] | undefined;

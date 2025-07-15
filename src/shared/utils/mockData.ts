@@ -1,7 +1,21 @@
-// 타입 정의
+/**
+ * 목 데이터 타입 정의
+ * 개발 환경에서 사용되는 목업 데이터의 타입들
+ */
+
+/**
+ * 요청 상태 타입
+ */
 type RequestStatus = 'waiting' | 'reserved' | 'completed';
+
+/**
+ * 제안 상태 타입
+ */
 type OfferStatus = 'waiting' | 'requested' | 'confirmed' | 'completed';
 
+/**
+ * 도움 요청 인터페이스
+ */
 interface HelpRequest {
   id: string;
   userName: string;
@@ -15,6 +29,9 @@ interface HelpRequest {
   userEmail?: string; // Slack 멘션용 이메일
 }
 
+/**
+ * 도움 제안 인터페이스
+ */
 interface HelpOffer {
   id: string;
   userName: string;
@@ -27,7 +44,9 @@ interface HelpOffer {
   userEmail?: string; // Slack 멘션용 이메일
 }
 
-// 임시 목업 데이터
+/**
+ * 임시 목업 데이터 - 도움 요청 목록
+ */
 export const mockHelpRequests: HelpRequest[] = [
   {
     id: '1',
@@ -60,6 +79,9 @@ export const mockHelpRequests: HelpRequest[] = [
   },
 ];
 
+/**
+ * 임시 목업 데이터 - 도움 제안 목록
+ */
 export const mockHelpOffers: HelpOffer[] = [
   {
     id: '1',
@@ -126,6 +148,9 @@ export const mockHelpOffers: HelpOffer[] = [
   },
 ];
 
+/**
+ * 내 페이지 데이터 목업
+ */
 export const mockMyData = {
   helpRequests: 3,
   helpOffers: 5,
@@ -140,6 +165,9 @@ export const mockMyData = {
   ],
 };
 
+/**
+ * 이달의 사원 랭킹 목업 데이터
+ */
 export const mockEmployeeOfMonth = [
   { rank: 1, name: '김철수', completedCount: 15, carNumber: '12가 3456' },
   { rank: 2, name: '이영희', completedCount: 12, carNumber: '34나 1234' },
@@ -148,7 +176,10 @@ export const mockEmployeeOfMonth = [
   { rank: 5, name: '최영수', completedCount: 5, carNumber: '90마 9012' },
 ];
 
-// 현재 사용자 정보 (실제로는 Context에서 가져와야 함)
+/**
+ * 현재 사용자 정보를 가져오는 함수
+ * localStorage에서 사용자 정보를 읽어옴
+ */
 const getCurrentUser = () => {
   const user = JSON.parse(localStorage.getItem('parking_user') || '{}');
   return {
@@ -159,8 +190,14 @@ const getCurrentUser = () => {
   };
 };
 
-// 목업 API 함수들 (실제 API와 같은 인터페이스)
+/**
+ * 목업 API 함수들
+ * 실제 API와 같은 인터페이스를 제공하여 개발 환경에서 테스트 가능
+ */
 export const mockParkingApi = {
+  /**
+   * 도움 요청 목록을 가져오는 함수
+   */
   getHelpRequests: () => {
     const currentUser = getCurrentUser();
     const requestsWithOwnership = mockHelpRequests.map((request) => ({
@@ -169,6 +206,10 @@ export const mockParkingApi = {
     }));
     return Promise.resolve(requestsWithOwnership);
   },
+
+  /**
+   * 도움 제안 목록을 가져오는 함수
+   */
   getHelpOffers: () => {
     const currentUser = getCurrentUser();
     const offersWithOwnership = mockHelpOffers.map((offer) => ({
@@ -177,9 +218,20 @@ export const mockParkingApi = {
     }));
     return Promise.resolve(offersWithOwnership);
   },
+
+  /**
+   * 내 페이지 데이터를 가져오는 함수
+   */
   getMyData: () => Promise.resolve(mockMyData),
+
+  /**
+   * 이달의 사원 데이터를 가져오는 함수
+   */
   getEmployeeOfMonth: () => Promise.resolve(mockEmployeeOfMonth),
 
+  /**
+   * 새 도움 요청을 생성하는 함수
+   */
   createHelpRequest: (_data: any) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -202,6 +254,9 @@ export const mockParkingApi = {
     });
   },
 
+  /**
+   * 새 도움 제안을 생성하는 함수
+   */
   createHelpOffer: (_data: any) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -223,7 +278,9 @@ export const mockParkingApi = {
     });
   },
 
-  // 도움 요청하기 수락 (기존 로직)
+  /**
+   * 도움 요청을 예약하는 함수
+   */
   reserveHelp: (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -249,7 +306,9 @@ export const mockParkingApi = {
     });
   },
 
-  // 도움 제안에 요청하기
+  /**
+   * 도움 제안에 요청하는 함수
+   */
   requestHelp: (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -276,7 +335,9 @@ export const mockParkingApi = {
     });
   },
 
-  // 도움 요청 확인하기
+  /**
+   * 도움 요청을 확인하는 함수
+   */
   confirmHelp: (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -298,7 +359,9 @@ export const mockParkingApi = {
     });
   },
 
-  // 도움 요청 취소하기
+  /**
+   * 도움 요청을 취소하는 함수
+   */
   cancelHelpRequest: (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -324,7 +387,9 @@ export const mockParkingApi = {
     });
   },
 
-  // 도움 요청하기 수락 취소 (기존 로직)
+  /**
+   * 도움 요청 예약을 취소하는 함수
+   */
   cancelReservation: (id: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -340,7 +405,9 @@ export const mockParkingApi = {
     });
   },
 
-  // 완료 처리 (분리)
+  /**
+   * 도움 요청을 완료 처리하는 함수
+   */
   completeHelpRequest: (id: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -354,6 +421,9 @@ export const mockParkingApi = {
     });
   },
 
+  /**
+   * 도움 제안을 완료 처리하는 함수
+   */
   completeHelpOffer: (id: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -367,7 +437,9 @@ export const mockParkingApi = {
     });
   },
 
-  // 삭제 처리 (분리)
+  /**
+   * 도움 요청을 삭제하는 함수
+   */
   deleteHelpRequest: (id: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -380,6 +452,9 @@ export const mockParkingApi = {
     });
   },
 
+  /**
+   * 도움 제안을 삭제하는 함수
+   */
   deleteHelpOffer: (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -410,6 +485,9 @@ export const mockParkingApi = {
     });
   },
 
+  /**
+   * 프로필을 업데이트하는 함수
+   */
   updateProfile: (_data: any) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -418,9 +496,15 @@ export const mockParkingApi = {
     });
   },
 
+  /**
+   * 로그인 함수
+   */
   login: (_employeeNumber: string, _password: string) => {
     return Promise.resolve({ success: true });
   },
 
+  /**
+   * 헬스 체크 함수
+   */
   healthCheck: () => Promise.resolve({ status: 'ok' }),
 };

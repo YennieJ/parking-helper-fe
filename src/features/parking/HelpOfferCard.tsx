@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-// import { useToast } from '../components/Toast';
-import { MESSAGES } from '../utils/messages';
-import CompleteConfirmationModal from './CompleteConfirmationModal';
+// import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+// import { useToast } from '../../shared/components/ui/Toast';
+import { MESSAGES } from '../../shared/utils/messages';
+// import CompleteConfirmationModal from './CompleteConfirmationModal';
 
 interface HelpOffer {
   id: string;
@@ -35,14 +35,14 @@ const HelpOfferCard: React.FC<Props> = ({
   offer,
   onRequest,
   onConfirm,
-  onMarkComplete,
+  // onMarkComplete,
   onRemove,
   onCancelRequest,
   loadingState = {},
 }) => {
   const { user } = useAuth();
   // const { showSuccess } = useToast();
-  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  // const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   const isRequestedByMe = offer.requestedById === user?.memberId;
   const canConfirm = offer.status === 'requested' && offer.isOwner; // 작성자만 확인 가능
@@ -50,14 +50,14 @@ const HelpOfferCard: React.FC<Props> = ({
   const canCancelRequest = offer.status === 'requested' && isRequestedByMe; // 요청자만 취소 가능
   const canRemove = offer.status === 'waiting' && offer.isOwner; // 대기중일 때만 작성자가 삭제 가능
 
-  const handleCompleteClick = () => {
-    setShowCompleteModal(true);
-  };
+  // const handleCompleteClick = () => {
+  //   setShowCompleteModal(true);
+  // };
 
-  const handleCompleteConfirm = () => {
-    onMarkComplete();
-    setShowCompleteModal(false);
-  };
+  // const handleCompleteConfirm = () => {
+  //   onMarkComplete();
+  //   setShowCompleteModal(false);
+  // };
 
   // const handleCopyCarNumber = async () => {
   //   const carNumber = offer.requestedByCarNumber || '';
@@ -168,7 +168,7 @@ const HelpOfferCard: React.FC<Props> = ({
           {/* 작성자에게만 완료 버튼 표시 */}
           {canMarkComplete && (
             <button
-              onClick={handleCompleteClick}
+              // onClick={handleCompleteClick}
               disabled={loadingState.isMarkingComplete}
               className="btn-primary text-sm px-3 py-2 w-full disabled:opacity-50"
             >
@@ -287,13 +287,13 @@ const HelpOfferCard: React.FC<Props> = ({
       </div>
 
       {/* 완료 확인 모달 */}
-      {showCompleteModal && (
+      {/* {showCompleteModal && (
         <CompleteConfirmationModal
           onConfirm={handleCompleteConfirm}
           onCancel={() => setShowCompleteModal(false)}
           isLoading={loadingState.isMarkingComplete}
         />
-      )}
+      )} */}
     </>
   );
 };
