@@ -1,6 +1,10 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCreateRequestHelp } from '../hooks/useRequestHelp';
+import { useToast } from '../components/Toast';
+import { MESSAGES } from '../utils/messages';
+import { useErrorHandler } from '../hooks/useErrorHandler';
+import ErrorDisplay from './common/ErrorDisplay';
 
 interface Props {
   onClose: () => void;
@@ -9,8 +13,11 @@ interface Props {
 const AddRequestModal: React.FC<Props> = ({ onClose }) => {
   const { user } = useAuth();
   const createRequestHelp = useCreateRequestHelp();
+  const { showSuccess } = useToast();
+  const { error, handleError, clearError } = useErrorHandler();
 
   const handleSubmit = () => {
+    clearError(); // 에러 메시지 초기화
     createRequestHelp.mutate(
       {
         helpReqMemId: user?.memberId || 0,
@@ -18,7 +25,11 @@ const AddRequestModal: React.FC<Props> = ({ onClose }) => {
       },
       {
         onSuccess: () => {
+          showSuccess('등록 완료', MESSAGES.HELP_REQUEST.CREATED);
           onClose();
+        },
+        onError: (error: any) => {
+          handleError(error);
         },
       }
     );
@@ -40,6 +51,9 @@ const AddRequestModal: React.FC<Props> = ({ onClose }) => {
             </div>
             <p className="text-gray-700">주차 도움이 필요하신가요?</p>
           </div>
+
+          {/* 에러 메시지 표시 */}
+          <ErrorDisplay error={error} className="mb-4" />
 
           <div className="flex gap-3">
             <button

@@ -1,25 +1,49 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useUpdateRequestHelp } from '../hooks/useRequestHelp';
+import { useToast } from './Toast';
+import { MESSAGES, createMessage } from '../utils/messages';
+import { RequestStatus } from '../types/requestStatus';
+import { useErrorHandler } from '../hooks/useErrorHandler';
+import ErrorDisplay from './common/ErrorDisplay';
 
 interface Props {
+  requestId: number;
   requesterName?: string;
   carNumber?: string;
-  onConfirm: () => void;
   onCancel: () => void;
-  isLoading?: boolean;
 }
 
 const CompleteConfirmationModal: React.FC<Props> = ({
+  requestId,
   requesterName,
   carNumber,
-  onConfirm,
   onCancel,
-  isLoading = false,
 }) => {
+  const { user } = useAuth();
+  const updateRequestHelp = useUpdateRequestHelp();
+  const { showSuccess } = useToast();
+  const { error, handleError, clearError } = useErrorHandler();
   const [isChecked, setIsChecked] = useState(false);
 
-  const handleConfirm = () => {
-    if (isChecked) {
-      onConfirm();
+  const handleConfirm = async () => {
+    if (!isChecked) return;
+
+    clearError();
+    try {
+      await updateRequestHelp.mutateAsync({
+        id: requestId,
+        data: {
+          status: RequestStatus.COMPLETED,
+          helperMemId: user?.memberId || null,
+        },
+      });
+
+      const message = createMessage.helpRequest.completed();
+      showSuccess(message.title, message.message);
+      onCancel();
+    } catch (error) {
+      handleError(error);
     }
   };
 
@@ -68,6 +92,9 @@ const CompleteConfirmationModal: React.FC<Props> = ({
             </div>
           </div>
 
+          {/* 에러 메시지 표시 */}
+          <ErrorDisplay error={error} className="mb-4" />
+
           {/* 확인 체크박스 */}
           <div className="mb-6">
             <label
@@ -104,21 +131,21 @@ const CompleteConfirmationModal: React.FC<Props> = ({
           <div className="flex gap-3">
             <button
               onClick={onCancel}
-              disabled={isLoading}
+              disabled={updateRequestHelp.isPending}
               className="btn-outline flex-1 disabled:opacity-50"
             >
               취소
             </button>
             <button
               onClick={handleConfirm}
-              disabled={!isChecked || isLoading}
+              disabled={!isChecked || updateRequestHelp.isPending}
               className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-all duration-200 min-h-[48px] ${
-                isChecked && !isLoading
+                isChecked && !updateRequestHelp.isPending
                   ? 'bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl active:scale-[0.98]'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              {isLoading ? (
+              {updateRequestHelp.isPending ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   처리 중...
@@ -133,11 +160,11 @@ const CompleteConfirmationModal: React.FC<Props> = ({
           </div>
 
           {/* 추가 안내 */}
-          <div className="mt-4 text-center">
+          {/* <div className="mt-4 text-center">
             <p className="text-xs text-gray-500">
               완료 처리 시 양측 모두에게 알림이 전송됩니다
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

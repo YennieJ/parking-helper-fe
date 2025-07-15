@@ -67,6 +67,20 @@ export const MESSAGES = {
     DATA_LOAD_FAILED: '데이터 로딩에 실패했습니다.',
     CONNECTION_FAILED: '서버와 연결할 수 없습니다.',
     REFRESH_PROMPT: '새로고침 버튼을 눌러주세요.',
+    // 에러 관련 추가
+    ERROR_TITLE: '오류가 발생했습니다',
+    NETWORK_ERROR_TITLE: '네트워크 오류',
+    SERVER_ERROR_TITLE: '서버 오류',
+    DATA_ERROR_TITLE: '데이터 오류',
+    VALIDATION_ERROR_TITLE: '입력 오류',
+    PERMISSION_ERROR_TITLE: '권한 오류',
+    TIMEOUT_ERROR_TITLE: '시간 초과',
+    NOT_FOUND_ERROR_TITLE: '데이터를 찾을 수 없습니다',
+    UNAUTHORIZED_ERROR_TITLE: '인증이 필요합니다',
+    FORBIDDEN_ERROR_TITLE: '접근 권한이 없습니다',
+    BAD_REQUEST_ERROR_TITLE: '잘못된 요청입니다',
+    INTERNAL_SERVER_ERROR_TITLE: '서버 내부 오류',
+    SERVICE_UNAVAILABLE_ERROR_TITLE: '서비스가 일시적으로 사용할 수 없습니다',
   },
 
   // 상태 관련
@@ -99,6 +113,14 @@ export const createMessage = {
       title: MESSAGES.HELP_REQUEST.ACCEPT_FAILED,
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
     }),
+
+    completed: () => ({
+      title: MESSAGES.HELP_REQUEST.COMPLETED,
+      message: '주차 도움이 성공적으로 완료되었습니다.',
+    }),
+
+    completeFailed: (error?: string) =>
+      createMessage.error.complete('request', error),
   },
 
   // 도움 제안 관련
@@ -174,6 +196,74 @@ export const createMessage = {
           ? MESSAGES.HELP_REQUEST.DELETE_FAILED
           : MESSAGES.HELP_OFFER.DELETE_FAILED,
       message: error || MESSAGES.SYSTEM.UNKNOWN_ERROR,
+    }),
+
+    // HTTP 상태 코드별 에러
+    network: (error?: string) => ({
+      title: MESSAGES.SYSTEM.NETWORK_ERROR_TITLE,
+      message: error || MESSAGES.SYSTEM.NETWORK_ERROR,
+    }),
+
+    server: (error?: string) => ({
+      title: MESSAGES.SYSTEM.SERVER_ERROR_TITLE,
+      message: error || MESSAGES.SYSTEM.SERVER_ERROR,
+    }),
+
+    notFound: (error?: string) => ({
+      title: '오류가 발생했습니다',
+      message:
+        error || '네트워크에 문제가 생겼습니다. 관리자에게 문의해주세요.',
+    }),
+
+    unauthorized: (error?: string) => ({
+      title: MESSAGES.SYSTEM.UNAUTHORIZED_ERROR_TITLE,
+      message: error || '로그인이 필요합니다.',
+    }),
+
+    forbidden: (error?: string) => ({
+      title: MESSAGES.SYSTEM.FORBIDDEN_ERROR_TITLE,
+      message: error || '접근 권한이 없습니다.',
+    }),
+
+    badRequest: (error?: string) => ({
+      title: MESSAGES.SYSTEM.BAD_REQUEST_ERROR_TITLE,
+      message: error || '잘못된 요청입니다.',
+    }),
+
+    internalServer: (error?: string) => ({
+      title: MESSAGES.SYSTEM.INTERNAL_SERVER_ERROR_TITLE,
+      message: error || MESSAGES.SYSTEM.SERVER_ERROR,
+    }),
+
+    serviceUnavailable: (error?: string) => ({
+      title: MESSAGES.SYSTEM.SERVICE_UNAVAILABLE_ERROR_TITLE,
+      message: error || '서비스가 일시적으로 사용할 수 없습니다.',
+    }),
+
+    timeout: (error?: string) => ({
+      title: MESSAGES.SYSTEM.TIMEOUT_ERROR_TITLE,
+      message: error || '요청 시간이 초과되었습니다.',
+    }),
+
+    validation: (error?: string) => ({
+      title: MESSAGES.SYSTEM.VALIDATION_ERROR_TITLE,
+      message: error || '입력값이 올바르지 않습니다.',
+    }),
+
+    permission: (error?: string) => ({
+      title: MESSAGES.SYSTEM.PERMISSION_ERROR_TITLE,
+      message: error || '권한이 없습니다.',
+    }),
+
+    data: (error?: string) => ({
+      title: MESSAGES.SYSTEM.DATA_ERROR_TITLE,
+      message: error || MESSAGES.SYSTEM.DATA_LOAD_FAILED,
+    }),
+
+    // 일반적인 에러 (기본값)
+    general: (error?: string) => ({
+      title: MESSAGES.SYSTEM.ERROR_TITLE,
+      message: error || '사원번호가 올바르지 않습니다.',
     }),
   },
 };
