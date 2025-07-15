@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useUpdateRequestHelp } from '../hooks/useRequestHelp';
 import { useToast } from './Toast';
-import { MESSAGES, createMessage } from '../utils/messages';
+import { createMessage } from '../utils/messages';
 import { RequestStatus } from '../types/requestStatus';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import ErrorDisplay from './common/ErrorDisplay';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   requestId: number;
@@ -21,6 +22,7 @@ const CompleteConfirmationModal: React.FC<Props> = ({
   onCancel,
 }) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const updateRequestHelp = useUpdateRequestHelp();
   const { showSuccess } = useToast();
   const { error, handleError, clearError } = useErrorHandler();
@@ -41,6 +43,9 @@ const CompleteConfirmationModal: React.FC<Props> = ({
 
       const message = createMessage.helpRequest.completed();
       showSuccess(message.title, message.message);
+
+      queryClient.invalidateQueries({ queryKey: ['ranking'] });
+
       onCancel();
     } catch (error) {
       handleError(error);
