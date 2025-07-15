@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
     data: helpRequests,
     isLoading: requestsLoading,
     error: requestsError,
-  } = useRequestHelp('2025-07-12');
+  } = useRequestHelp();
 
   // console.log('helpRequests', helpRequests);
 
