@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 import Header from '../components/Header';
+import LogoutIcon from '../components/icons/LogoutIcon';
 
 const MyPage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -11,6 +12,9 @@ const MyPage: React.FC = () => {
   const [editData, setEditData] = useState({
     carNumber: user?.carNumber || '',
   });
+  const [carNumberError, setCarNumberError] = useState('');
+
+  const carNumberRegex = /^[0-9]{2,3}[가-힣][0-9]{4}$/;
 
   if (!user) return null;
 
@@ -21,17 +25,32 @@ const MyPage: React.FC = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
+    setCarNumberError('');
+  };
+
+  const validateCarNumber = (carNumber: string): boolean => {
+    const cleanCarNumber = carNumber.replace(/\s/g, '');
+    return carNumberRegex.test(cleanCarNumber);
   };
 
   const handleSave = async () => {
     try {
-      // 여기에 실제 API 호출 로직 추가
-      // await updateProfile(editData);
+      if (
+        isCarNumberChanged &&
+        editData.carNumber &&
+        !validateCarNumber(editData.carNumber)
+      ) {
+        setCarNumberError(
+          '올바른 차량번호 형식으로 입력해주세요. (예: 12가3456)'
+        );
+        return;
+      }
 
-      showSuccess('프로필 수정 완료', '개인정보가 업데이트되었습니다.');
+      showSuccess('차량번호 수정 완료', '차량번호가 업데이트되었습니다.');
       setIsEditing(false);
+      setCarNumberError('');
     } catch (error) {
-      showError('프로필 수정 실패', '개인정보 업데이트에 실패했습니다.');
+      showError('차량번호 수정 실패', '차량번호 업데이트에 실패했습니다.');
     }
   };
 
@@ -40,23 +59,35 @@ const MyPage: React.FC = () => {
       carNumber: user?.carNumber || '',
     });
     setIsEditing(false);
+    setCarNumberError('');
   };
+
+  const handleCarNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+
+    value = value.replace(/\s/g, '');
+
+    setEditData({ ...editData, carNumber: value });
+
+    if (carNumberError) {
+      setCarNumberError('');
+    }
+  };
+
+  const isCarNumberChanged = editData.carNumber !== (user?.carNumber || '');
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-primary-50 h-[calc(100vh-5rem)]">
-      {/* 헤더 - 고정 */}
       <Header
         title="내 페이지"
         rightAction={{
-          icon: '로그아웃',
+          icon: <LogoutIcon size={24} />,
           onClick: () => setShowLogoutModal(true),
         }}
       />
 
       <div className="p-3 md:max-w-[700px] mx-auto">
-        {/* 사용자 프로필 카드 */}
         <div className="card">
-          {/* 헤더 */}
           <div className="text-center mb-3">
             <div className="size-10 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
               <span className="text-2xl">👤</span>
@@ -67,10 +98,8 @@ const MyPage: React.FC = () => {
             </p>
           </div>
 
-          {/* 정보 표시 모드 */}
           {!isEditing && (
             <div className="space-y-3">
-              {/* 사원번호 */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   사원번호
@@ -80,7 +109,6 @@ const MyPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 이름 */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   이름
@@ -90,7 +118,6 @@ const MyPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 차량번호 */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   차량번호
@@ -100,7 +127,6 @@ const MyPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 수정 버튼 */}
               <div className="pt-1">
                 <button onClick={handleEdit} className="btn-primary w-full">
                   <span className="mr-2">✏️</span>
@@ -110,10 +136,8 @@ const MyPage: React.FC = () => {
             </div>
           )}
 
-          {/* 편집 모드 */}
           {isEditing && (
             <div className="space-y-3">
-              {/* 사원번호 (읽기 전용) */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   사원번호
@@ -126,7 +150,6 @@ const MyPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* 이름 (읽기 전용) */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   이름
@@ -139,7 +162,6 @@ const MyPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* 차량번호 (편집 가능) */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   차량번호 <span className="text-red-500">*</span>
@@ -147,21 +169,30 @@ const MyPage: React.FC = () => {
                 <input
                   type="text"
                   value={editData.carNumber}
-                  onChange={(e) =>
-                    setEditData({ ...editData, carNumber: e.target.value })
-                  }
-                  className="input-field"
-                  placeholder="12가 3456"
+                  onChange={handleCarNumberChange}
+                  className={`input-field ${
+                    carNumberError ? 'border-red-500 bg-red-50' : ''
+                  }`}
+                  placeholder="12가3456"
                 />
-                <p className="text-xs text-gray-500 mt-1">예: 12가 3456</p>
+                {carNumberError && (
+                  <p className="text-xs text-red-500 mt-1">{carNumberError}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  형식: 숫자2-3자리 + 한글1자리 + 숫자4자리 (예: 12가3456,
+                  123나4567)
+                </p>
               </div>
 
-              {/* 버튼들 */}
               <div className="flex gap-3 pt-1">
                 <button onClick={handleCancel} className="btn-outline flex-1">
                   취소
                 </button>
-                <button onClick={handleSave} className="btn-primary flex-1">
+                <button
+                  onClick={handleSave}
+                  disabled={!isCarNumberChanged}
+                  className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   저장하기
                 </button>
               </div>
@@ -170,7 +201,6 @@ const MyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 로그아웃 모달 */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl">

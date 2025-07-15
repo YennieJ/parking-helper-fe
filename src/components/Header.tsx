@@ -5,7 +5,7 @@ interface HeaderProps {
   icon?: string;
   subtitle?: string;
   rightAction?: {
-    icon: string;
+    icon: React.ReactNode;
     onClick: () => void;
     className?: string;
   };
@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({
     <div
       className={`bg-white/80 backdrop-blur-lg border-b border-gray-200/50 px-4 py-4 shadow-sm h-16 flex items-center ${className}`}
     >
-      <div className="flex items-center justify-between w-full md:justify-center">
+      <div className="flex items-center justify-between w-full md:max-w-[670px] mx-auto">
         <div className="flex items-center gap-3">
           {icon && <span className="text-xl">{icon}</span>}
           <div className="flex flex-col justify-center">
@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({
         {rightAction && (
           <button
             onClick={rightAction.onClick}
-            className={`text-gray-500 hover:text-red-500 transition-colors p-2 rounded-xl hover:bg-red-50 ${
+            className={`text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-xl hover:bg-gray-100 ${
               rightAction.className || ''
             }`}
           >
