@@ -120,13 +120,16 @@ const HelpRequestCard: React.FC<Props> = ({
     if (request.status === RequestStatus.REQUEST) {
       return (
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700 font-medium bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
-                📝 {request.helper?.helperName}님이 수락
-              </span>
+          {/* 내가 도와주는 요청이 아닌 경우에만 수락 표시 */}
+          {!isAcceptedByMe && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700 font-medium bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
+                  📝 {request.helper?.helperName}님이 수락
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex gap-2">
             {canCancelAcceptance && (
@@ -223,7 +226,17 @@ const HelpRequestCard: React.FC<Props> = ({
 
   return (
     <>
-      <div className="card hover:shadow-lg transition-all duration-200">
+      <div
+        className={`${
+          request.status === RequestStatus.REQUEST &&
+          !isOwner &&
+          !isAcceptedByMe
+            ? 'rounded-2xl shadow-card border border-gray-200 p-5 bg-gray-100 opacity-60'
+            : request.status === RequestStatus.COMPLETED
+            ? 'bg-white rounded-2xl shadow-card border border-gray-200 p-5 bg-gray-50 opacity-75'
+            : 'card hover:shadow-xl hover:scale-[1.02] transition-all duration-300'
+        }`}
+      >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
@@ -257,7 +270,7 @@ const HelpRequestCard: React.FC<Props> = ({
                           );
                         }
                       }}
-                      className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded-lg border border-blue-200 transition-colors flex items-center gap-1"
+                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded-lg border border-gray-200 transition-colors flex items-center gap-1"
                       title="차량번호 복사"
                     >
                       <span>📋</span>

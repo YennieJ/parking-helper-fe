@@ -23,6 +23,10 @@ const RequestSection: React.FC<RequestSectionProps> = ({
   error,
 }) => {
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    myHelping: true,
+    myRequests: true,
+  });
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
 
@@ -95,6 +99,30 @@ const RequestSection: React.FC<RequestSectionProps> = ({
     }
   };
 
+  // 요청들을 사용자 역할에 따라 분류
+  const categorizeRequests = () => {
+    if (!helpRequests || !user)
+      return {
+        myHelping: [],
+        myRequests: [],
+      };
+
+    const myHelping = helpRequests.filter(
+      (request) =>
+        request.helper?.id === user.memberId &&
+        request.status !== RequestStatus.COMPLETED
+    );
+
+    const myRequests = helpRequests.filter(
+      (request) => request.helpRequester?.id === user.memberId
+    );
+
+    return { myHelping, myRequests };
+  };
+
+  const { myHelping, myRequests } = categorizeRequests();
+  const totalMyRequests = myHelping.length + myRequests.length;
+
   // 로딩 상태 처리
   if (isLoading) {
     return (
@@ -138,18 +166,118 @@ const RequestSection: React.FC<RequestSectionProps> = ({
           + 추가
         </button>
       </div>
-      <div className="space-y-3">
-        {helpRequests?.map((request: RequestHelp) => (
-          <HelpRequestCard
-            key={request.id}
-            request={request}
-            onAccept={() => handleAccept(request.id.toString())}
-            onRemove={() => handleRemoveRequest(request.id.toString())}
-            onCancelAcceptance={() =>
-              handleCancelAcceptance(request.id.toString())
+
+      {/* 내 요청/도움 요청 아코디언 */}
+      {totalMyRequests > 0 && (
+        <div className="bg-white rounded-2xl shadow-card border border-gray-100 mb-4 overflow-hidden">
+          <button
+            onClick={() =>
+              setExpandedSections((prev) => ({
+                ...prev,
+                myHelping: !prev.myHelping,
+              }))
             }
-          />
-        ))}
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+                <span className="text-primary-600 text-sm">📋</span>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-800">
+                  내 요청/도움 요청 ({totalMyRequests}개)
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  내가 도움을 요청한 것들과 현재 다른 사람을 도와주고 있는
+                  것들을 모아서 보여드려요.
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                {expandedSections.myHelping ? '접기' : '펼치기'}
+              </span>
+              <span
+                className={`transition-transform duration-200 text-gray-400 ${
+                  expandedSections.myHelping ? 'rotate-180' : ''
+                }`}
+              >
+                ▼
+              </span>
+            </div>
+          </button>
+
+          {expandedSections.myHelping && (
+            <div className="border-t border-gray-100 bg-gray-50/30">
+              <div className="p-4 space-y-4">
+                {/* 내가 도와주는 요청 */}
+                {myHelping.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-gray-100 px-3 py-2 rounded-lg">
+                      내가 도와주는 요청 ({myHelping.length}개)
+                    </div>
+                    {myHelping.map((request: RequestHelp) => (
+                      <HelpRequestCard
+                        key={request.id}
+                        request={request}
+                        onAccept={() => handleAccept(request.id.toString())}
+                        onRemove={() =>
+                          handleRemoveRequest(request.id.toString())
+                        }
+                        onCancelAcceptance={() =>
+                          handleCancelAcceptance(request.id.toString())
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* 내가 요청한 요청 */}
+                {myRequests.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-gray-100 px-3 py-2 rounded-lg">
+                      내 도움 요청 ({myRequests.length}개)
+                    </div>
+                    {myRequests.map((request: RequestHelp) => (
+                      <HelpRequestCard
+                        key={request.id}
+                        request={request}
+                        onAccept={() => handleAccept(request.id.toString())}
+                        onRemove={() =>
+                          handleRemoveRequest(request.id.toString())
+                        }
+                        onCancelAcceptance={() =>
+                          handleCancelAcceptance(request.id.toString())
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 아코디언이 아닌 모든 요청들 (원래 순서대로) */}
+      <div className="space-y-3">
+        {helpRequests
+          ?.filter(
+            (request) =>
+              request.helpRequester?.id !== user?.memberId &&
+              request.helper?.id !== user?.memberId
+          )
+          .map((request: RequestHelp) => (
+            <HelpRequestCard
+              key={request.id}
+              request={request}
+              onAccept={() => handleAccept(request.id.toString())}
+              onRemove={() => handleRemoveRequest(request.id.toString())}
+              onCancelAcceptance={() =>
+                handleCancelAcceptance(request.id.toString())
+              }
+            />
+          ))}
         {(!helpRequests || helpRequests.length === 0) && (
           <div className="card text-center py-8">
             <div className="text-4xl mb-2">🤷‍♂️</div>
