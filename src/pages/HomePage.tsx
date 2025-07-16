@@ -15,7 +15,6 @@ const HomePage: React.FC = () => {
     error: requestsError,
   } = useRequestHelp();
 
-  console.log('helpRequests', helpRequests);
   /**
    * 현재 날짜/시간을 한국 시간으로 포맷팅
    * @returns 포맷팅된 날짜/시간 문자열

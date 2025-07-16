@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import HelpRequestCard from './HelpRequestCard';
-import { MESSAGES, createMessage } from '../../shared/utils/messages';
+import { MESSAGES } from '../../shared/utils/messages';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   useDeleteRequestHelp,
@@ -57,6 +57,14 @@ const RequestSection: React.FC<RequestSectionProps> = ({
           status: RequestStatus.REQUEST,
         },
       });
+
+      // 아코디언이 접혀있다면 펼치기
+      if (!expandedSections.myHelping) {
+        setExpandedSections((prev) => ({
+          ...prev,
+          myHelping: true,
+        }));
+      }
 
       showSuccess('수락 완료', MESSAGES.HELP_REQUEST.ACCEPTED);
     } catch (error) {
@@ -185,9 +193,9 @@ const RequestSection: React.FC<RequestSectionProps> = ({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+              {/* <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
                 {expandedSections.myHelping ? '접기' : '펼치기'}
-              </span>
+              </span> */}
               <span
                 className={`transition-transform duration-200 text-gray-400 ${
                   expandedSections.myHelping ? 'rotate-180' : ''
@@ -255,8 +263,10 @@ const RequestSection: React.FC<RequestSectionProps> = ({
         {helpRequests
           ?.filter(
             (request) =>
+              // 내가 관여하지 않은 요청들 + 내가 완료시킨 요청들
               request.helpRequester?.id !== user?.memberId &&
-              request.helper?.id !== user?.memberId
+              (request.helper?.id !== user?.memberId ||
+                request.status === RequestStatus.COMPLETED)
           )
           .map((request: RequestHelp) => (
             <HelpRequestCard
