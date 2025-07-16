@@ -58,16 +58,7 @@ const RequestSection: React.FC<RequestSectionProps> = ({
         },
       });
 
-      // 차량번호 복사 메시지 표시
-      const request = helpRequests?.find((r) => r.id.toString() === id);
-      if (request?.reqCar?.carNumber) {
-        const message = createMessage.helpRequest.accepted(
-          request.reqCar.carNumber
-        );
-        showSuccess(message.title, message.message);
-      } else {
-        showSuccess('수락 완료', MESSAGES.HELP_REQUEST.ACCEPTED);
-      }
+      showSuccess('수락 완료', MESSAGES.HELP_REQUEST.ACCEPTED);
     } catch (error) {
       showError('수락 실패', MESSAGES.HELP_REQUEST.ACCEPT_FAILED);
     }

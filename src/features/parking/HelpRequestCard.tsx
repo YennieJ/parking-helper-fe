@@ -9,8 +9,8 @@ import type { RequestStatusType } from '../../shared/types/requestStatus';
 import CompleteConfirmationModal from './CompleteConfirmationModal';
 import type { RequestHelp } from './useRequestHelp';
 import { formatToKoreanTime } from '../../shared/utils/formatToKoreanTime';
-import { useToast } from '../../shared/components/ui/Toast';
-import { MESSAGES } from '../../shared/utils/messages';
+// import { useToast } from '../../shared/components/ui/Toast';
+// import { MESSAGES } from '../../shared/utils/messages';
 
 interface Props {
   request: RequestHelp;
@@ -26,7 +26,7 @@ const HelpRequestCard: React.FC<Props> = ({
   onCancelAcceptance,
 }) => {
   const { user } = useAuth();
-  const { showSuccess } = useToast();
+  // const { showSuccess } = useToast();
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   // 로컬 로딩 상태 관리
@@ -45,34 +45,34 @@ const HelpRequestCard: React.FC<Props> = ({
     request.status === RequestStatus.REQUEST && isAcceptedByMe;
 
   // 차량번호 복사 함수
-  const copyCarNumber = async (carNumber: string): Promise<boolean> => {
-    try {
-      await navigator.clipboard.writeText(carNumber);
-      return true;
-    } catch (error) {
-      // 클립보드 API가 지원되지 않는 경우 fallback
-      try {
-        const textArea = document.createElement('textarea');
-        textArea.value = carNumber;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        return true;
-      } catch (fallbackError) {
-        return false;
-      }
-    }
-  };
+  // const copyCarNumber = async (carNumber: string): Promise<boolean> => {
+  //   try {
+  //     await navigator.clipboard.writeText(carNumber);
+  //     return true;
+  //   } catch (error) {
+  //     // 클립보드 API가 지원되지 않는 경우 fallback
+  //     try {
+  //       const textArea = document.createElement('textarea');
+  //       textArea.value = carNumber;
+  //       document.body.appendChild(textArea);
+  //       textArea.select();
+  //       document.execCommand('copy');
+  //       document.body.removeChild(textArea);
+  //       return true;
+  //     } catch (fallbackError) {
+  //       return false;
+  //     }
+  //   }
+  // };
 
   // 버튼 핸들러들
   const handleAccept = async () => {
     setLoadingStates((prev) => ({ ...prev, isAccepting: true }));
 
-    // 차량번호 복사 시도
-    if (request.reqCar?.carNumber) {
-      await copyCarNumber(request.reqCar.carNumber);
-    }
+    // 차량번호 복사 시도 (주석 처리)
+    // if (request.reqCar?.carNumber) {
+    //   await copyCarNumber(request.reqCar.carNumber);
+    // }
 
     onAccept();
     // 성공 후에도 잠시 로딩 유지
@@ -254,21 +254,25 @@ const HelpRequestCard: React.FC<Props> = ({
                     ? request.reqCar.carNumber
                     : ''}
                 </div>
-                {request.reqCar?.carNumber &&
+                {/* {request.reqCar?.carNumber &&
                   request.status === RequestStatus.REQUEST &&
                   request.helper?.id === user?.memberId && (
                     <button
                       onClick={async () => {
-                        const copySuccess = await copyCarNumber(
-                          request.reqCar.carNumber
+                        // const copySuccess = await copyCarNumber(
+                        //   request.reqCar.carNumber
+                        // );
+                        // if (copySuccess) {
+                        //   showSuccess(
+                        //     MESSAGES.CAR_NUMBER.COPY_WITH_NUMBER(
+                        //       request.reqCar.carNumber
+                        //   );
+                        // }
+                        showSuccess(
+                          MESSAGES.CAR_NUMBER.COPY_WITH_NUMBER(
+                            request.reqCar.carNumber
+                          )
                         );
-                        if (copySuccess) {
-                          showSuccess(
-                            MESSAGES.CAR_NUMBER.COPY_WITH_NUMBER(
-                              request.reqCar.carNumber
-                            )
-                          );
-                        }
                       }}
                       className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded-lg border border-gray-200 transition-colors flex items-center gap-1"
                       title="차량번호 복사"
@@ -276,7 +280,7 @@ const HelpRequestCard: React.FC<Props> = ({
                       <span>📋</span>
                       <span>복사</span>
                     </button>
-                  )}
+                  )} */}
               </div>
               <div className="text-xs text-gray-500">
                 {formatToKoreanTime(request.reqDate)} 등록
