@@ -116,7 +116,7 @@ const LoginPage: React.FC = () => {
                 <div className="text-xs text-green-700 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
-                    <span>우리 회사 사원번호로 로그인하세요</span>
+                    <span>우리 회사 QMS 사원번호로 로그인하세요</span>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>

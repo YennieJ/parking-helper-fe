@@ -3,17 +3,15 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../shared/components/ui/Toast';
 import { useUpdateMember } from '../features/member/useMember';
 import Header from '../shared/components/layout/Header';
-import LogoutIcon from '../shared/components/icons/LogoutIcon';
 
 /**
  * 내 페이지 컴포넌트
  * 사용자 정보 조회 및 차량번호 수정 기능을 제공
  */
 const MyPage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { showSuccess, showError } = useToast();
   const { mutate: updateMember, isPending } = useUpdateMember();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     carNumber: user?.carNumber || '',
@@ -26,14 +24,6 @@ const MyPage: React.FC = () => {
   const carNumberRegex = /^[0-9]{2,3}[가-힣][0-9]{4}$/;
 
   if (!user) return null;
-
-  /**
-   * 로그아웃 처리
-   */
-  const handleLogout = () => {
-    logout();
-    setShowLogoutModal(false);
-  };
 
   /**
    * 편집 모드 시작
@@ -134,13 +124,7 @@ const MyPage: React.FC = () => {
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-primary-50 h-[calc(100vh-5rem)]">
-      <Header
-        title="내 페이지"
-        rightAction={{
-          icon: <LogoutIcon size={24} />,
-          onClick: () => setShowLogoutModal(true),
-        }}
-      />
+      <Header title="내 페이지" />
 
       <div className="p-3 md:max-w-[700px] mx-auto">
         <div className="card">
@@ -256,33 +240,6 @@ const MyPage: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* 로그아웃 모달 */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl">
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">👋</span>
-              </div>
-              <h2 className="text-xl font-bold text-gray-800 mb-3">로그아웃</h2>
-              <p className="text-gray-600 mb-8">정말 로그아웃 하시겠습니까?</p>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowLogoutModal(false)}
-                  className="btn-outline flex-1"
-                >
-                  취소
-                </button>
-                <button onClick={handleLogout} className="btn-danger flex-1">
-                  로그아웃
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
