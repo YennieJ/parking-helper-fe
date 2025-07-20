@@ -1,300 +1,167 @@
-// import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-// import { useToast } from '../../shared/components/ui/Toast';
-import { MESSAGES } from '../../shared/utils/messages';
-// import CompleteConfirmationModal from './CompleteConfirmationModal';
-
-interface HelpOffer {
-  id: string;
-  userName: string;
-  createdAt: string;
-  status: 'waiting' | 'requested' | 'confirmed' | 'completed';
-  requestedBy?: string;
-  requestedById?: string;
-  requestedByCarNumber?: string; // 요청자의 차량번호
-  isOwner: boolean;
-}
+import {
+  useUpdateOfferHelp,
+  type OfferHelpResponse,
+} from '../offer/useOfferHelp';
+import { formatToKoreanTime } from '../../shared/utils/formatToKoreanTime';
+import { useToast } from '../../shared/components/ui/Toast';
+import { ParkingStatus } from '../../shared/types/parkingStatus';
+import { Service } from '../../shared/types/servieType';
 
 interface Props {
-  offer: HelpOffer;
-  onRequest: () => void;
-  onConfirm: () => void;
-  onMarkComplete: () => void;
-  onRemove: () => void;
-  onCancelRequest: () => void;
-  loadingState?: {
-    isRequesting?: boolean;
-    isConfirming?: boolean;
-    isMarkingComplete?: boolean;
-    isRemoving?: boolean;
-    isCancelingRequest?: boolean;
-  };
+  offer: OfferHelpResponse;
 }
 
-const HelpOfferCard: React.FC<Props> = ({
-  offer,
-  onRequest,
-  onConfirm,
-  // onMarkComplete,
-  onRemove,
-  onCancelRequest,
-  loadingState = {},
-}) => {
+const HelpOfferCard: React.FC<Props> = ({ offer }) => {
   const { user } = useAuth();
-  // const { showSuccess } = useToast();
-  // const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const { showSuccess, showError } = useToast();
+  const updateOfferHelp = useUpdateOfferHelp();
+  const [helpCount, setHelpCount] = useState(1); // 도움 받을 건수 상태 추가
 
-  const isRequestedByMe = offer.requestedById === user?.memberId;
-  const canConfirm = offer.status === 'requested' && offer.isOwner; // 작성자만 확인 가능
-  const canMarkComplete = offer.status === 'confirmed' && offer.isOwner; // 작성자만 완료 가능
-  const canCancelRequest = offer.status === 'requested' && isRequestedByMe; // 요청자만 취소 가능
-  const canRemove = offer.status === 'waiting' && offer.isOwner; // 대기중일 때만 작성자가 삭제 가능
+  // 로컬 로딩 상태 관리
+  const [loadingStates, setLoadingStates] = useState({
+    isRequesting: false,
+    isMarkingComplete: false,
+    isRemoving: false,
+    isCancelingAcceptance: false,
+  });
 
-  // const handleCompleteClick = () => {
-  //   setShowCompleteModal(true);
-  // };
+  const offerCount = offer.discountTotalCount - offer.discountApplyCount; // 제안 건수
+  const maxHelpCount = Math.min(offerCount, 3); // 최대 도움 받을 수 있는 건수
 
-  // const handleCompleteConfirm = () => {
-  //   onMarkComplete();
-  //   setShowCompleteModal(false);
-  // };
+  // 사용 가능한 제안이 없으면 렌더링하지 않음
+  if (offerCount === 0) {
+    return null;
+  }
 
-  // const handleCopyCarNumber = async () => {
-  //   const carNumber = offer.requestedByCarNumber || '';
+  // 도움 제안 요청 처리
+  const handleRequest = async () => {
+    if (!user) return;
 
-  //   try {
-  //     await navigator.clipboard.writeText(carNumber);
-  //     const message = createMessage.carNumber.copied(carNumber);
-  //     showSuccess(message.title, message.message);
-  //   } catch (error) {
-  //     console.error('복사 실패:', error);
-  //     // 클립보드 API가 지원되지 않는 경우 fallback
-  //     const textArea = document.createElement('textarea');
-  //     textArea.value = carNumber;
-  //     document.body.appendChild(textArea);
-  //     textArea.select();
-  //     document.execCommand('copy');
-  //     document.body.removeChild(textArea);
-  //     const message = createMessage.carNumber.copied(carNumber);
-  //     showSuccess(message.title, message.message);
-  //   }
-  // };
-
-  const renderButtons = () => {
-    if (offer.status === 'completed') {
-      return (
-        <div className="flex items-center justify-center py-2">
-          <div className="flex items-center gap-2 text-sm text-green-700 font-medium bg-green-50 px-3 py-2 rounded-xl border border-green-200">
-            <span>✅</span>
-            완료됨
-          </div>
-        </div>
+    // 차량 정보 확인
+    if (!user.carNumber) {
+      showError(
+        '차량 정보 없음',
+        '등록된 차량이 없습니다. 주차 등록 사이트에서 차량을 등록한 후 다시 시도해주세요.'
       );
+      return;
     }
 
-    if (offer.status === 'requested') {
-      return (
-        <div className="space-y-3">
-          {/* 요청 정보 표시 - 요청자의 차량번호 포함 */}
-          <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-            <div className="text-sm text-gray-700 font-medium">
-              📝 {offer.requestedBy}님이 도움 요청
-            </div>
-            {offer.requestedByCarNumber && (
-              <div className="flex items-center justify-between mt-2">
-                <div>
-                  <div className="text-sm text-gray-600">
-                    🚗 도움 요청자의 차량번호
-                  </div>
-                  <div className="text-lg font-bold text-gray-900 mt-1">
-                    {offer.requestedByCarNumber}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex gap-2">
-            {/* 요청자에게만 취소 버튼 표시 */}
-            {canCancelRequest && (
-              <button
-                onClick={onCancelRequest}
-                disabled={loadingState.isCancelingRequest}
-                className="btn-outline text-sm px-3 py-2 flex-1 disabled:opacity-50"
-              >
-                {loadingState.isCancelingRequest ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-1"></div>
-                    취소중...
-                  </div>
-                ) : (
-                  '도움 요청 취소'
-                )}
-              </button>
-            )}
-
-            {/* 작성자에게만 확인 버튼 표시 */}
-            {canConfirm && (
-              <button
-                onClick={onConfirm}
-                disabled={loadingState.isConfirming}
-                className="btn-primary text-sm px-3 py-2 flex-1 disabled:opacity-50"
-              >
-                {loadingState.isConfirming ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
-                    확인중...
-                  </div>
-                ) : (
-                  '확인하기'
-                )}
-              </button>
-            )}
-          </div>
-        </div>
+    setLoadingStates((prev) => ({ ...prev, isRequesting: true }));
+    try {
+      const waitingDetails = offer.helpOfferDetail.filter(
+        (detail) => detail.reqDetailStatus === ParkingStatus.WAITING
       );
-    }
 
-    if (offer.status === 'confirmed') {
-      return (
-        <div className="space-y-3">
-          {/* 확인된 상태 표시 */}
-          <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-            <div className="text-sm text-gray-700 font-medium">
-              ✅ {offer.requestedBy}님의 차량 도움 진행 중
-            </div>
-          </div>
+      // helpCount만큼만 선택해서 업데이트
+      const detailsToUpdate = waitingDetails.slice(0, helpCount);
 
-          {/* 작성자에게만 완료 버튼 표시 */}
-          {canMarkComplete && (
-            <button
-              // onClick={handleCompleteClick}
-              disabled={loadingState.isMarkingComplete}
-              className="btn-primary text-sm px-3 py-2 w-full disabled:opacity-50"
-            >
-              {loadingState.isMarkingComplete ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
-                  완료중...
-                </div>
-              ) : (
-                '완료하기'
-              )}
-            </button>
-          )}
-        </div>
-      );
-    }
+      // 각 detail의 정보를 배열로 구성
+      const helpOfferDetail = detailsToUpdate.map((detail) => ({
+        id: detail.id,
+        status: ParkingStatus.REQUEST,
+        reqMemberId: user.memberId,
+        discountApplyDate: new Date().toISOString(),
+        discountApplyType: Service.NONE,
+        requestDate: new Date().toISOString(),
+      }));
 
-    // waiting 상태
-    return (
-      <div className="flex gap-2">
-        {/* 다른 사람만 요청 가능 */}
-        {!offer.isOwner && (
-          <button
-            onClick={onRequest}
-            disabled={loadingState.isRequesting}
-            className="btn-primary text-sm px-3 py-2 flex-1 disabled:opacity-50"
-          >
-            {loadingState.isRequesting ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
-                요청중...
-              </div>
-            ) : (
-              '도움 요청하기'
-            )}
-          </button>
-        )}
+      await updateOfferHelp.mutateAsync({
+        id: offer.id,
+        data: {
+          status: ParkingStatus.WAITING,
+          helpOfferDetail: helpOfferDetail,
+        },
+      });
 
-        {/* 작성자는 대기중일 때만 삭제 가능 */}
-        {canRemove && (
-          <button
-            onClick={onRemove}
-            disabled={loadingState.isRemoving}
-            className="btn-danger text-sm px-3 py-2 flex-1 disabled:opacity-50"
-          >
-            {loadingState.isRemoving ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
-                삭제중...
-              </div>
-            ) : (
-              '삭제하기'
-            )}
-          </button>
-        )}
-      </div>
-    );
-  };
-
-  const getStatusColor = () => {
-    switch (offer.status) {
-      case 'waiting':
-        return 'bg-white text-yellow-600 border-yellow-300';
-      case 'requested':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+      showSuccess('요청 완료', '도움 제안을 요청했습니다.');
+      setHelpCount(1); // helpCount를 1로 초기화
+    } catch (error) {
+      showError('요청 실패', '도움 제안 요청에 실패했습니다.');
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, isRequesting: false }));
     }
   };
 
-  const getStatusText = () => {
-    switch (offer.status) {
-      case 'waiting':
-        return MESSAGES.STATUS.OFFERING;
-      case 'requested':
-        return MESSAGES.STATUS.REQUESTED;
-      case 'confirmed':
-        return MESSAGES.STATUS.IN_PROGRESS;
-      case 'completed':
-        return MESSAGES.STATUS.COMPLETED;
-      default:
-        return MESSAGES.STATUS.UNKNOWN;
+  // 도움 받을 건수 증가/감소
+  const increaseHelpCount = () => {
+    if (helpCount < maxHelpCount) {
+      setHelpCount(helpCount + 1);
+    }
+  };
+
+  const decreaseHelpCount = () => {
+    if (helpCount > 1) {
+      setHelpCount(helpCount - 1);
     }
   };
 
   return (
-    <>
-      <div className="card hover:shadow-lg transition-all duration-200">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
-              <span className="text-lg">🙋‍♂️</span>
-            </div>
-            <div>
-              <div className="font-semibold text-gray-800">
-                {offer.userName}님
-              </div>
-              <div className="text-xs text-gray-500">
-                {offer.createdAt} 등록
-              </div>
-            </div>
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-200">
+      {/* 헤더 - 사용자 정보와 시간 */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+            <span className="text-sm">👤</span>
           </div>
-
-          <div
-            className={`px-3 py-1 rounded-xl text-xs font-bold border ${getStatusColor()}`}
-          >
-            {getStatusText()}
-          </div>
+          <span className="font-semibold text-gray-800">
+            {offer.helper?.name || '익명'}
+          </span>
         </div>
-
-        {renderButtons()}
+        <div className="flex items-center gap-1 text-gray-500 text-sm">
+          <span className="text-xs">🕐</span>
+          <span>{formatToKoreanTime(offer.helperServiceDate)}</span>
+        </div>
       </div>
 
-      {/* 완료 확인 모달 */}
-      {/* {showCompleteModal && (
-        <CompleteConfirmationModal
-          onConfirm={handleCompleteConfirm}
-          onCancel={() => setShowCompleteModal(false)}
-          isLoading={loadingState.isMarkingComplete}
-        />
-      )} */}
-    </>
+      {/* 메인 내용 */}
+      <div className="mb-4">
+        <h3 className="text-xl font-bold text-gray-900 mb-3">
+          등록 도움 제안 <span className="text-green-600">{offerCount}건</span>
+        </h3>
+        {/* 도움 받을 건수 선택 - 다중 건수일 때만 표시 */}
+        {offerCount > 1 && (
+          <div className="flex items-center gap-4 mb-4">
+            <span className="text-base font-medium text-gray-700">
+              도움 받을 건수:
+            </span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={decreaseHelpCount}
+                disabled={helpCount <= 1}
+                className="w-10 h-10 bg-green-100 hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center justify-center transition-colors shadow-sm"
+              >
+                <span className="text-green-600 font-bold text-lg">−</span>
+              </button>
+              <span className="w-12 text-center font-bold text-xl text-green-600">
+                {helpCount}
+              </span>
+              <button
+                onClick={increaseHelpCount}
+                disabled={helpCount >= maxHelpCount}
+                className="w-10 h-10 bg-green-100 hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center justify-center transition-colors shadow-sm"
+              >
+                <span className="text-green-600 font-bold text-lg">+</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 액션 버튼 */}
+      <div>
+        <button
+          onClick={handleRequest}
+          className="w-full bg-green-50 hover:bg-green-100 text-green-700 py-4 px-6 rounded-2xl font-semibold text-lg transition-colors duration-200 border border-green-200"
+          disabled={loadingStates.isRequesting}
+        >
+          {loadingStates.isRequesting
+            ? '처리중...'
+            : `${helpCount}건 부탁드릴게요`}
+        </button>
+      </div>
+    </div>
   );
 };
 

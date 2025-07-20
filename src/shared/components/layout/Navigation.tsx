@@ -9,22 +9,14 @@ import { useAuth } from '../../../contexts/AuthContext';
 const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  /**
-   * 주차 등록 사이트로 이동
-   */
-  const handleParkingWebsite = () => {
-    // 실제 주차 등록 사이트 URL로 변경 필요
-    window.open('http://gidc001.iptime.org:35052/nxpmsc/login', '_blank');
-  };
 
   /**
    * 로그아웃 처리
    */
   const handleLogout = () => {
-    logout();
+    // 로그아웃 기능 제거됨
     setShowLogoutModal(false);
   };
 
@@ -44,13 +36,9 @@ const Navigation: React.FC = () => {
    */
   const navItems = [
     { path: '/', icon: '🏠', label: '홈' },
-    { path: '/ranking', icon: '🏆', label: '이달의사원' },
-    {
-      path: '/parking-register',
-      icon: '🚗',
-      label: '주차등록 (C2115)',
-      isExternal: true,
-    },
+    { path: '/request', icon: '🙏', label: '요청' },
+    { path: '/offer', icon: '🤝', label: '제안' },
+    { path: '/my-activity', icon: '📋', label: '현황' },
     {
       path: '/my-page',
       icon: '👤',
@@ -61,32 +49,21 @@ const Navigation: React.FC = () => {
   return (
     <>
       {/* 하단 네비게이션 바 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 px-4 py-2 grid grid-cols-4 gap-1 shadow-lg">
-        {navItems.map((item) =>
-          item.isExternal ? (
-            <button
-              key={item.path}
-              onClick={handleParkingWebsite}
-              className="flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95"
-            >
-              <span className="text-lg mb-1">{item.icon}</span>
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          ) : (
-            <button
-              key={item.path}
-              onClick={() => handleNavigation(item.path)}
-              className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 ${
-                location.pathname === item.path
-                  ? 'bg-primary-500 text-white shadow-lg transform scale-105'
-                  : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50 active:scale-95'
-              }`}
-            >
-              <span className="text-lg mb-1">{item.icon}</span>
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          )
-        )}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 px-4 py-2 grid grid-cols-5 gap-1 shadow-lg">
+        {navItems.map((item) => (
+          <button
+            key={item.path}
+            onClick={() => handleNavigation(item.path)}
+            className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all duration-200 ${
+              location.pathname === item.path
+                ? 'bg-gray-800 text-white shadow-lg transform scale-105'
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100 active:scale-95'
+            }`}
+          >
+            <span className="text-lg mb-1">{item.icon}</span>
+            <span className="text-xs font-medium">{item.label}</span>
+          </button>
+        ))}
       </div>
 
       {/* 로그아웃 모달 */}

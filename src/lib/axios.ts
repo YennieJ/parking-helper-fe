@@ -5,7 +5,7 @@ import axios from 'axios';
  * 타임아웃과 기본 헤더를 설정
  */
 const apiClient = axios.create({
-  baseURL: '',
+  baseURL: '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

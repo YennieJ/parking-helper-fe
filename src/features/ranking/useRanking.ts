@@ -18,7 +18,7 @@ export const useRanking = () => {
   return useQuery({
     queryKey: ['ranking'],
     queryFn: async (): Promise<RankingItem[]> => {
-      return await getData<RankingItem[]>('/api/ranking');
+      return await getData<RankingItem[]>('/ranking');
     },
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
     gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 대기

@@ -133,7 +133,7 @@ const LoginPage: React.FC = () => {
         {/* 푸터 */}
         <div className="text-center mt-8">
           <p className="text-primary-100 text-sm">
-            © 2024 주차 도우미. 모든 권리 보유.
+            © 2025 주차 도우미. 모든 권리 보유?
           </p>
         </div>
       </div>

@@ -9,10 +9,12 @@ import { env } from './config/env';
 import Navigation from './shared/components/layout/Navigation';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
-import RankingPage from './pages/RankingPage';
 import LoginPage from './pages/LoginPage';
 import LoadingScreen from './shared/components/layout/LoadingScreen';
 import './App.css';
+import RequestPage from './pages/RequestPage';
+import OfferPage from './pages/OfferPage';
+import MyActivityPage from './pages/MyActivityPage';
 
 /**
  * 앱 컨텐츠 컴포넌트
@@ -41,8 +43,11 @@ const AppContent: React.FC = () => {
       <div className="flex-1 pb-20 ">
         <Routes>
           <Route path="/" element={<HomePage />} />
+
+          <Route path="/request" element={<RequestPage />} />
+          <Route path="/offer" element={<OfferPage />} />
           <Route path="/my-page" element={<MyPage />} />
-          <Route path="/ranking" element={<RankingPage />} />
+          <Route path="/my-activity" element={<MyActivityPage />} />
         </Routes>
       </div>
       <Navigation />

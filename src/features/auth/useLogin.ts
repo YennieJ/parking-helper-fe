@@ -2,23 +2,21 @@ import { useMutation } from '@tanstack/react-query';
 import { postData } from '../../lib/axios';
 
 /**
- * API 응답 타입 - 회원 정보
+ * API 응답 타입 - 로그인 응답
  */
 export interface MemberResponse {
   id: number;
   memberLoginId: string;
-  memberName: string;
+  name: string;
   email: string;
-  createDate: string;
+  slackId: string | null;
   cars: Array<{
     id: number;
-    carNumber: string;
     memberId: number;
-    createDate: string;
-    updateDate: string;
+    carNumber: string;
   }>;
-  helpRequests: any[];
-  helpOffers: any[];
+  requestHelpHistory: null;
+  helpOfferHistory: null;
 }
 
 /**
@@ -36,14 +34,14 @@ export interface MemberRequest {
 export const useLogin = (onSuccess?: (userData: any) => void) => {
   return useMutation({
     mutationFn: async (data: MemberRequest): Promise<MemberResponse> => {
-      return await postData<MemberResponse>('/api/Login', data);
+      return await postData<MemberResponse>('/Login', data);
     },
     onSuccess: (data) => {
       // API 응답을 AuthContext 형식으로 변환
       const userData = {
         memberId: data.id,
         memberLoginId: data.memberLoginId,
-        memberName: data.memberName,
+        memberName: data.name,
         carId: data.cars?.[0]?.id || 0,
         carNumber: data.cars?.[0]?.carNumber || '',
         email: data.email,

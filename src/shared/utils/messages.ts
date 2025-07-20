@@ -25,6 +25,8 @@ export const MESSAGES = {
     ACCEPTED: '도움 제안을 수락했습니다!',
     CONFIRMED: '도움 요청을 확인했습니다!',
     CREATED: '도움 제안이 등록되었습니다!',
+    // REQUEST_SUCCESS: '도움 제안을 요청했습니다.',
+    // REQUEST_FAILED: '도움 제안 요청에 실패했습니다.',
     COMPLETED: '도움 제안이 완료되었습니다!',
     CANCELLED: '도움 제안 수락이 취소되었습니다!',
     DELETED: '도움 제안이 삭제되었습니다!',
