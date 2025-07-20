@@ -6,7 +6,7 @@
     },
     {
       "source": "/api/(.*)",
-      "destination": "https://parkinghelp.onrender.com/api/$1"
+      "destination": "https://pharmsoft-parkinghelp.koreacentral.cloudapp.azure.com/api/$1"
     }
   ]
 }
