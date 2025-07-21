@@ -16,12 +16,12 @@ const AddRequestModal: React.FC<Props> = ({ onClose }) => {
   const { showSuccess } = useToast();
   const { error, handleError, clearError } = useErrorHandler();
 
-  // 요청 건수 상태 관리 (1-5건)
+  // 요청 건수 상태 관리 (1-3건)
   const [requestCount, setRequestCount] = useState(1);
 
   // 요청 건수 증가
   const handleIncrease = () => {
-    if (requestCount < 5) {
+    if (requestCount < 3) {
       setRequestCount(requestCount + 1);
     }
   };
@@ -125,14 +125,14 @@ const AddRequestModal: React.FC<Props> = ({ onClose }) => {
                   {requestCount}건
                 </div>
                 <div className="text-xs text-blue-500">
-                  최대 5건까지 요청 가능
+                  최대 3건까지 요청 가능
                 </div>
               </div>
 
               {/* 증가 버튼 */}
               <button
                 onClick={handleIncrease}
-                disabled={requestCount >= 5}
+                disabled={requestCount >= 3}
                 className="w-12 h-12 bg-blue-100 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center justify-center transition-colors shadow-sm"
               >
                 <span className="text-blue-600 font-bold text-xl">+</span>
