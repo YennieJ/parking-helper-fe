@@ -86,6 +86,8 @@ export interface MemberDetail {
  * 회원 정보 업데이트 데이터 인터페이스
  */
 interface UpdateMemberData {
+  memberName: string;
+  email: string;
   carNumber: string;
 }
 

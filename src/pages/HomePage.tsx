@@ -185,7 +185,8 @@ const HomePage = () => {
           id: `request-${request.id}-${detail.id}`,
           type: TaskType.ACCEPTED_REQUEST,
           user: request.helpRequester.helpRequesterName,
-          carNumber: request.helpRequester.reqHelpCar.carNumber,
+          carNumber:
+            request.helpRequester.reqHelpCar?.carNumber || '차량번호 없음',
           time: new Date(request.reqDate).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
             minute: '2-digit',
@@ -206,7 +207,8 @@ const HomePage = () => {
           id: `approved-${offer.id}-${detail.id}`,
           type: TaskType.APPROVED_OFFER,
           user: detail.helpRequester?.helpRequesterName,
-          carNumber: detail.helpRequester?.reqHelpCar.carNumber,
+          carNumber:
+            detail.helpRequester?.reqHelpCar?.carNumber || '차량번호 없음',
           time: detail.discountApplyDate
             ? new Date(detail.discountApplyDate).toLocaleTimeString('ko-KR', {
                 hour: '2-digit',
@@ -576,7 +578,7 @@ const HomePage = () => {
                         <div className="bg-blue-500 px-2 py-1 rounded-full flex items-center gap-1 text-white">
                           <span className="text-red-500">🚗</span>
                           <span className="text-sm font-semibold">
-                            {task.carNumber}
+                            {task.carNumber ? task.carNumber : '차량번호 없음'}
                           </span>
                         </div>
                       </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../shared/components/ui/Toast';
 import { useUpdateMember } from '../features/member/useMember';
+import { useCreateCarNumber } from '../features/memberCar/useMemberCar';
 import Header from '../shared/components/layout/Header';
 
 /**
@@ -9,14 +10,21 @@ import Header from '../shared/components/layout/Header';
  * 사용자 정보 조회 및 차량번호 수정 기능을 제공
  */
 const MyPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { showSuccess, showError } = useToast();
   const { mutate: updateMember, isPending } = useUpdateMember();
+  const { mutate: createCarNumber } = useCreateCarNumber();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     carNumber: user?.carNumber || '',
   });
   const [carNumberError, setCarNumberError] = useState('');
+
+  const handleLogout = () => {
+    logout();
+    setShowLogoutModal(false);
+  };
 
   /**
    * 차량번호 유효성 검사 정규식
@@ -59,29 +67,61 @@ const MyPage: React.FC = () => {
         return;
       }
 
-      if (isCarNumberChanged && editData.carNumber) {
-        updateMember(
-          {
-            id: user.memberId.toString(),
-            data: { carNumber: editData.carNumber },
-          },
-          {
-            onSuccess: () => {
-              showSuccess(
-                '차량번호 수정 완료',
-                '차량번호가 업데이트되었습니다.'
-              );
-              setIsEditing(false);
-              setCarNumberError('');
+      if (isCarNumberChanged) {
+        // 차량번호가 없는 경우 createCarNumber 사용
+        if (!user.carNumber) {
+          createCarNumber(
+            {
+              memberId: user.memberId,
+              carNumber: editData.carNumber || '',
             },
-            onError: () => {
-              showError(
-                '차량번호 수정 실패',
-                '차량번호 업데이트에 실패했습니다.'
-              );
+            {
+              onSuccess: () => {
+                showSuccess('차량번호 등록 완료', '차량번호가 등록되었습니다.');
+                setIsEditing(false);
+                setCarNumberError('');
+                // AuthContext의 user 상태 업데이트
+                updateUser({ carNumber: editData.carNumber || '' });
+              },
+              onError: () => {
+                showError(
+                  '차량번호 등록 실패',
+                  '차량번호 등록에 실패했습니다.'
+                );
+              },
+            }
+          );
+        } else {
+          // 차량번호가 있는 경우 updateMember 사용
+          updateMember(
+            {
+              id: user.memberId.toString(),
+              data: {
+                carNumber: editData.carNumber || '',
+                memberName: user.memberName,
+                email: user.email,
+              },
             },
-          }
-        );
+            {
+              onSuccess: () => {
+                showSuccess(
+                  '차량번호 수정 완료',
+                  '차량번호가 업데이트되었습니다.'
+                );
+                setIsEditing(false);
+                setCarNumberError('');
+                // AuthContext의 user 상태 업데이트
+                updateUser({ carNumber: editData.carNumber || '' });
+              },
+              onError: () => {
+                showError(
+                  '차량번호 수정 실패',
+                  '차량번호 업데이트에 실패했습니다.'
+                );
+              },
+            }
+          );
+        }
       } else {
         setIsEditing(false);
         setCarNumberError('');
@@ -124,7 +164,13 @@ const MyPage: React.FC = () => {
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-primary-50 h-[calc(100vh-5rem)]">
-      <Header title="내 페이지" />
+      <Header
+        title="내 페이지"
+        rightAction={{
+          onClick: () => setShowLogoutModal(true),
+          icon: '👋',
+        }}
+      />
 
       <div className="p-3 md:max-w-[700px] mx-auto">
         <div className="card">
@@ -240,6 +286,31 @@ const MyPage: React.FC = () => {
           )}
         </div>
       </div>
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl">
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl">👋</span>
+              </div>
+              <h2 className="text-xl font-bold text-gray-800 mb-3">로그아웃</h2>
+              <p className="text-gray-600 mb-8">정말 로그아웃 하시겠습니까?</p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLogoutModal(false)}
+                  className="btn-outline flex-1"
+                >
+                  취소
+                </button>
+                <button onClick={handleLogout} className="btn-danger flex-1">
+                  로그아웃
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

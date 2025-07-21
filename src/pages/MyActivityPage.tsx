@@ -4,19 +4,25 @@ import Header from '../shared/components/layout/Header';
 import StatusBadge from '../shared/components/ui/StatusBadge';
 import DeleteConfirmModal from '../shared/components/ui/DeleteConfirmModal';
 import { useState, useEffect } from 'react';
-import { useDeleteOfferHelp } from '../features/offer/useOfferHelp';
+import {
+  useDeleteOfferHelp,
+  useUpdateOfferHelp,
+} from '../features/offer/useOfferHelp';
+import { useToast } from '../shared/components/ui/Toast';
 
 const MyActivityPage = () => {
   const { isLoading } = useMyInfo();
   const { data: myInfo, isLoading: myInfoLoading } = useMyInfo();
   const deleteRequestDetail = useDeleteRequestHelpDetail();
   const deleteOfferHelpDetail = useDeleteOfferHelp();
+  const { showSuccess, showError } = useToast();
+  const updateOfferHelp = useUpdateOfferHelp();
   const [expandedRequests, setExpandedRequests] = useState<Set<string>>(
     new Set()
   );
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    type: 'request' | 'offer';
+    type: 'request' | 'offer' | 'offerRequest';
     id: number;
     onConfirm: () => void;
   }>({
@@ -33,8 +39,6 @@ const MyActivityPage = () => {
     if (!helpOfferMyRequestHistory || helpOfferMyRequestHistory.length === 0) {
       return [];
     }
-
-    console.log('변환 전 데이터:', helpOfferMyRequestHistory);
 
     // helpOffer.id + requestDate별로 그룹화 (초 무시)
     const groupedByOfferAndTime = helpOfferMyRequestHistory.reduce(
@@ -74,6 +78,7 @@ const MyActivityPage = () => {
               id: detail.helpRequester?.id,
               helpRequesterName: detail.helpRequester?.helpRequesterName,
             },
+            offerId: offerId, // 부모 id 추가
           });
         });
 
@@ -92,7 +97,6 @@ const MyActivityPage = () => {
 
     const transformedData = Object.values(groupedByOfferAndTime);
 
-    console.log('변환 후 데이터:', transformedData);
     return transformedData;
   };
 
@@ -105,10 +109,6 @@ const MyActivityPage = () => {
     transformHelpOfferMyRequestHistory(
       displayMyInfo?.helpOfferMyRequestHistory || []
     );
-
-  console.log('=== helpOfferMyRequestHistory 변환 결과 ===');
-  console.log('원본 데이터:', displayMyInfo?.helpOfferMyRequestHistory);
-  console.log('변환된 데이터:', transformedHelpOfferMyRequestHistory);
 
   // 가장 최근 요청과 제안을 기본적으로 열어두기
   useEffect(() => {
@@ -171,6 +171,48 @@ const MyActivityPage = () => {
       </div>
     );
   }
+
+  const handleCancelOffer = (offerId: number, detailId: number) => {
+    setDeleteModal({
+      isOpen: true,
+      type: 'offerRequest',
+      id: detailId,
+      onConfirm: () => {
+        updateOfferHelp.mutate(
+          {
+            id: offerId,
+            data: {
+              status: 'Check',
+              helpOfferDetail: [
+                {
+                  id: detailId,
+                  status: 'Waiting',
+                  reqMemberId: 0,
+                  discountApplyDate: null,
+                  discountApplyType: 'None',
+                  requestDate: null,
+                },
+              ],
+            },
+          },
+          {
+            onSuccess: () => {
+              showSuccess('도움 취소', '도움 요청을 취소했습니다.');
+            },
+            onError: () => {
+              showError('도움 취소 실패', '도움 취소에 실패했습니다.');
+            },
+          }
+        );
+        setDeleteModal({
+          isOpen: false,
+          type: 'request',
+          id: 0,
+          onConfirm: () => {},
+        });
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -524,6 +566,21 @@ const MyActivityPage = () => {
                                   <StatusBadge
                                     status={detail.reqDetailStatus}
                                   />
+                                  {detail.reqDetailStatus === 'Check' && (
+                                    <button
+                                      onClick={() => {
+                                        handleCancelOffer(
+                                          detail.offerId,
+                                          detail.id
+                                        );
+                                      }}
+                                      className="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 rounded-md text-sm font-medium transition-colors"
+                                    >
+                                      {deleteRequestDetail.isPending
+                                        ? '삭제 중...'
+                                        : '취소'}
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -681,7 +738,7 @@ const MyActivityPage = () => {
                                 <div className="flex-1">
                                   <div className="font-semibold text-gray-800 text-base">
                                     {detail.reqDetailStatus === 'Check'
-                                      ? `${detail.helpRequester?.helpRequesterName}님이 도움이 필요해요!`
+                                      ? `🫶${detail.helpRequester?.helpRequesterName}님이 도움이 필요해요!`
                                       : detail.reqDetailStatus === 'Completed'
                                       ? `😇🪽 ${detail.helpRequester?.helpRequesterName}님을 도와줌!`
                                       : '🔍 도움이 필요한 사람 찾는 중 ...'}
@@ -769,11 +826,17 @@ const MyActivityPage = () => {
         onClose={() => setDeleteModal({ ...deleteModal, isOpen: false })}
         onConfirm={deleteModal.onConfirm}
         title={
-          deleteModal.type === 'request' ? '도움 요청 취소' : '도움 제안 취소'
+          deleteModal.type === 'request'
+            ? '도움 요청 취소'
+            : deleteModal.type === 'offerRequest'
+            ? '제안 부탁 취소'
+            : '도움 제안 취소'
         }
         message={
           deleteModal.type === 'request'
             ? '정말 이 도움 요청을 취소하시겠습니까?'
+            : deleteModal.type === 'offerRequest'
+            ? '정말 이 제안 부탁을 취소하시겠습니까?'
             : '정말 이 도움 제안을 취소하시겠습니까?'
         }
         confirmText="취소"

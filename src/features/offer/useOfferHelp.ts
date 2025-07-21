@@ -45,9 +45,9 @@ export interface UpdateOfferHelpData {
     id: number;
     status: ParkingStatusType;
     reqMemberId: number;
-    discountApplyDate: string;
+    discountApplyDate: string | null;
     discountApplyType: ServiceType;
-    requestDate: string;
+    requestDate: string | null;
   }[];
 }
 

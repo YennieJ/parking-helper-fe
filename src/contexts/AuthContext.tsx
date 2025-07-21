@@ -21,6 +21,7 @@ interface AuthContextType {
   setLoginUser: (userData: User) => void;
   setLoggingIn: (isLoading: boolean) => void;
   updateUser: (userData: Partial<User>) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +69,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   /**
+   * 로그아웃 처리
+   */
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('parking_user');
+  };
+
+  /**
    * 사용자 정보 부분 업데이트
    * @param userData - 업데이트할 사용자 정보
    */
@@ -87,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setLoginUser,
         setLoggingIn,
         updateUser,
+        logout,
       }}
     >
       {children}

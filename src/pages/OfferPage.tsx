@@ -8,7 +8,6 @@ import { useOfferHelp } from '../features/offer/useOfferHelp';
 
 const OfferPage = ({}) => {
   const { data: helpOffers, isLoading, error } = useOfferHelp();
-  console.log(helpOffers);
   const [showOfferModal, setShowOfferModal] = useState(false);
 
   const { user } = useAuth();
