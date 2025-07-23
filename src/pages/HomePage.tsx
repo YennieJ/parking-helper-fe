@@ -194,7 +194,7 @@ const HomePage = () => {
         }))
     ) || [];
 
-  // 2. 내가 승인해서 처리해야 할 제안들
+  // 2. 내가 승인해서 처리해야 할 제안들 (오늘 날짜만)
   const myApprovedOffers =
     displayMyInfo?.helpOfferHistory?.flatMap((offer: any) =>
       offer.helpOfferDetail
@@ -217,11 +217,26 @@ const HomePage = () => {
             : '시간 미확인',
           offerId: offer.id,
           detailId: detail.id,
+          reqDate: detail.discountApplyDate || offer.helperServiceDate,
         }))
     ) || [];
 
-  // 모든 처리할 일을 하나로 합치기
-  const urgentTasks = [...myAcceptedTasks, ...myApprovedOffers];
+  // 오늘 날짜 필터링
+  const today = new Date();
+  const todayString = today.toDateString();
+
+  const todayAcceptedTasks = myAcceptedTasks.filter((task: any) => {
+    const taskDate = new Date(task.reqDate);
+    return taskDate.toDateString() === todayString;
+  });
+
+  const todayApprovedOffers = myApprovedOffers.filter((task: any) => {
+    const taskDate = new Date(task.reqDate);
+    return taskDate.toDateString() === todayString;
+  });
+
+  // 모든 처리할 일을 하나로 합치기 (오늘 날짜만)
+  const urgentTasks = [...todayAcceptedTasks, ...todayApprovedOffers];
 
   // urgentTasks가 변경될 때 기본값 설정
   useEffect(() => {
@@ -324,15 +339,12 @@ const HomePage = () => {
 
       // 성공 처리
       showSuccess(
-        '일괄 완료 처리',
+        '도움 완료',
         `${totalTasks}개의 도움 요청이 성공적으로 처리되었습니다.`
       );
     } catch (error) {
       // 실패 처리
-      showError(
-        '일괄 완료 실패',
-        '일부 도움 요청 처리 중 오류가 발생했습니다.'
-      );
+      showError('도움 실패', '일부 도움 요청 처리 중 오류가 발생했습니다.');
     } finally {
       // 선택 초기화
       setSelectedTasks([]);
@@ -511,7 +523,7 @@ const HomePage = () => {
         </div>
 
         {/* 지금 처리할 일 */}
-        <div className="bg-white rounded-xl p-6 shadow-lg">
+        <div className="bg-white rounded-xl p-4 shadow-lg">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
               🔔 지금 처리할 일
@@ -564,19 +576,17 @@ const HomePage = () => {
 
                     <label htmlFor={`checkbox-${task.id}`} className="flex-1">
                       {/* 이름 */}
-                      <div className="font-semibold text-gray-800 mb-1">
+                      <div className="font-bold text-gray-800 mb-2 text-base">
                         {task.user}님{' '}
                         <span className="text-sm text-gray-500">
-                          {task.type === TaskType.ACCEPTED_REQUEST
-                            ? '(내가 도와주기로 한 요청)'
-                            : '(나의 제안에 부탁한 요청)'}
+                          {task.type === TaskType.ACCEPTED_REQUEST}
                         </span>
                       </div>
 
                       {/* 차량번호 */}
                       <div className="flex items-center gap-2">
-                        <div className="bg-blue-500 px-2 py-1 rounded-full flex items-center gap-1 text-white">
-                          <span className="text-red-500">🚗</span>
+                        <div className="bg-blue-500 px-2.5 py-1.5 rounded-full flex items-center gap-1.5 text-white">
+                          <span className="text-red-500 text-base">🚗</span>
                           <span className="text-sm font-semibold">
                             {task.carNumber ? task.carNumber : '차량번호 없음'}
                           </span>
@@ -590,40 +600,45 @@ const HomePage = () => {
                     {/* 시간 표시 */}
                     <div className="text-sm text-gray-500">{task.time}</div>
 
-                    {/* 카페/식당 선택 버튼들 */}
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        className={`bg-blue-500 px-3 py-1.5 font-semibold rounded-full flex items-center gap-1transition-colors ${
-                          selectedDiscountTypes[task.id] === Service.CAFE
-                            ? 'border border-blue-500 bg-blue-500 text-white hover:bg-blue-600'
-                            : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-100'
-                        }`}
-                        onClick={() => {
-                          setSelectedDiscountTypes((prev) => ({
-                            ...prev,
-                            [task.id]: Service.CAFE,
-                          }));
-                        }}
-                      >
-                        ☕ 카페
-                      </button>
-                      <button
-                        type="button"
-                        className={`bg-blue-500 px-3 py-1.5 font-semibold rounded-full flex items-center gap-1 transition-colors ${
-                          selectedDiscountTypes[task.id] === Service.RESTAURANT
-                            ? 'border border-blue-500 bg-blue-500 text-white hover:bg-blue-600'
-                            : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-100'
-                        }`}
-                        onClick={() => {
-                          setSelectedDiscountTypes((prev) => ({
-                            ...prev,
-                            [task.id]: Service.RESTAURANT,
-                          }));
-                        }}
-                      >
-                        🍽️ 식당
-                      </button>
+                    {/* 카페/식당 선택 토글 */}
+                    <div className="relative">
+                      <div className="bg-gray-200 rounded-full p-1 flex items-center">
+                        <button
+                          type="button"
+                          className={`flex-1 px-2 py-1.5 rounded-full font-semibold text-xs transition-all duration-200 flex items-center justify-center gap-1 min-w-0 ${
+                            selectedDiscountTypes[task.id] === Service.CAFE
+                              ? 'bg-white text-blue-600 shadow-sm transform scale-105'
+                              : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                          onClick={() => {
+                            setSelectedDiscountTypes((prev) => ({
+                              ...prev,
+                              [task.id]: Service.CAFE,
+                            }));
+                          }}
+                        >
+                          <span className="text-xs">☕</span>
+                          <span className="text-xs">카페</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`flex-1 px-2 py-1.5 rounded-full font-semibold text-xs transition-all duration-200 flex items-center justify-center gap-1 min-w-0 ${
+                            selectedDiscountTypes[task.id] ===
+                            Service.RESTAURANT
+                              ? 'bg-white text-orange-600 shadow-sm transform scale-105'
+                              : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                          onClick={() => {
+                            setSelectedDiscountTypes((prev) => ({
+                              ...prev,
+                              [task.id]: Service.RESTAURANT,
+                            }));
+                          }}
+                        >
+                          <span className="text-xs">🍽️</span>
+                          <span className="text-xs">식당</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -676,7 +691,7 @@ const HomePage = () => {
         </div>
 
         {/* 빠른 액션 */}
-        <div className="bg-white rounded-xl p-6 shadow-lg">
+        <div className="bg-white rounded-xl p-4 shadow-lg">
           <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
             ⚡ 빠른 액션
           </h2>

@@ -49,6 +49,39 @@ export interface MemberDetail {
       slackThreadTs: string | null;
     }>;
   }>;
+  myRequestHelpCompleteHistory: Array<{
+    id: number;
+    reqDate: string;
+    helpRequester: {
+      id: number;
+      helpRequesterName: string;
+      requesterEmail: string;
+      slackId: string | null;
+      reqHelpCar: {
+        id: number;
+        carNumber: string;
+      };
+    };
+    status: string;
+    updateSlackThreadTs: string | null;
+    totalDisCount: number;
+    applyDisCount: number;
+    accectCount: number | null;
+    helpDetails: Array<{
+      id: number;
+      reqDetailStatus: string;
+      discountApplyType: string;
+      discountApplyDate: string | null;
+      insertDate: string;
+      helper: {
+        id: number;
+        name: string;
+        email: string;
+        slackId: string | null;
+      } | null;
+      slackThreadTs: string | null;
+    }>;
+  }>;
   helpOfferHistory: Array<{
     id: number;
     helper: {
