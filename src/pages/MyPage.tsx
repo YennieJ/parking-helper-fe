@@ -4,6 +4,9 @@ import { useToast } from '../shared/components/ui/Toast';
 import { useUpdateMember } from '../features/member/useMember';
 import { useCreateCarNumber } from '../features/memberCar/useMemberCar';
 import Header from '../shared/components/layout/Header';
+import CardContainer from '../shared/components/ui/CardContiner';
+import FavoriteModal from '../features/member/components/FavoriteModal';
+import { useFavoriteMembers } from '../features/favorites/useFavorites';
 
 /**
  * 내 페이지 컴포넌트
@@ -15,11 +18,14 @@ const MyPage: React.FC = () => {
   const { mutate: updateMember, isPending } = useUpdateMember();
   const { mutate: createCarNumber } = useCreateCarNumber();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showFavoriteModal, setShowFavoriteModal] = useState(false);
   const [editData, setEditData] = useState({
     carNumber: user?.carNumber || '',
   });
   const [carNumberError, setCarNumberError] = useState('');
+  const { data: favoriteMembers, isLoading: favoritesLoading } =
+    useFavoriteMembers(user?.memberId ?? 0);
 
   const handleLogout = () => {
     logout();
@@ -34,10 +40,13 @@ const MyPage: React.FC = () => {
   if (!user) return null;
 
   /**
-   * 편집 모드 시작
+   * 편집 모달 열기
    */
   const handleEdit = () => {
-    setIsEditing(true);
+    setEditData({
+      carNumber: user?.carNumber || '',
+    });
+    setShowEditModal(true);
     setCarNumberError('');
   };
 
@@ -78,7 +87,7 @@ const MyPage: React.FC = () => {
             {
               onSuccess: () => {
                 showSuccess('차량번호 등록 완료', '차량번호가 등록되었습니다.');
-                setIsEditing(false);
+                setShowEditModal(false);
                 setCarNumberError('');
                 // AuthContext의 user 상태 업데이트
                 updateUser({ carNumber: editData.carNumber || '' });
@@ -108,7 +117,7 @@ const MyPage: React.FC = () => {
                   '차량번호 수정 완료',
                   '차량번호가 업데이트되었습니다.'
                 );
-                setIsEditing(false);
+                setShowEditModal(false);
                 setCarNumberError('');
                 // AuthContext의 user 상태 업데이트
                 updateUser({ carNumber: editData.carNumber || '' });
@@ -123,7 +132,7 @@ const MyPage: React.FC = () => {
           );
         }
       } else {
-        setIsEditing(false);
+        setShowEditModal(false);
         setCarNumberError('');
       }
     } catch (error) {
@@ -138,7 +147,7 @@ const MyPage: React.FC = () => {
     setEditData({
       carNumber: user?.carNumber || '',
     });
-    setIsEditing(false);
+    setShowEditModal(false);
     setCarNumberError('');
   };
 
@@ -163,128 +172,118 @@ const MyPage: React.FC = () => {
   const isCarNumberChanged = editData.carNumber !== (user?.carNumber || '');
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-primary-50 h-[calc(100vh-5rem)]">
+    <div className="min-h-screen bg-gray-50">
       <Header
-        title="내 페이지"
+        icon="👤"
+        title="마이 페이지"
         rightAction={{
           onClick: () => setShowLogoutModal(true),
           icon: '👋',
         }}
       />
 
-      <div className="p-3 md:max-w-[700px] mx-auto">
-        <div className="card">
-          <div className="text-center mb-3">
-            <div className="size-10 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">👤</span>
+      <div className="px-4 py-4 md:max-w-[700px] mx-auto space-y-6">
+        <CardContainer>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <span className="text-xl">👤</span>
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">내 정보</h2>
-            <p className="text-gray-600 text-sm">
-              개인정보를 확인하고 수정할 수 있습니다
-            </p>
+            <h2 className="text-lg font-bold text-gray-800">내 정보</h2>
           </div>
 
-          {!isEditing && (
-            <div className="space-y-3">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">
-                  사원번호
-                </label>
-                <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
+                <div className="text-sm text-gray-500 mb-1">사원번호</div>
+                <div className="font-medium text-gray-800 text-base">
                   {user.memberLoginId}
                 </div>
               </div>
+            </div>
 
+            <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">
-                  이름
-                </label>
-                <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
+                <div className="text-sm text-gray-500 mb-1">이름</div>
+                <div className="font-medium text-gray-800 text-base">
                   {user.memberName}
                 </div>
               </div>
+            </div>
 
+            <div className="flex items-center justify-between py-3">
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">
-                  차량번호
-                </label>
-                <div className="input-field bg-gray-100 text-gray-500 min-h-[44px] flex items-center">
+                <div className="text-sm text-gray-500 mb-1">차량번호</div>
+                <div className="font-medium text-gray-800 text-base">
                   {user.carNumber || '등록된 차량번호가 없습니다'}
                 </div>
               </div>
+              <button
+                onClick={handleEdit}
+                className="bg-green-50 hover:bg-green-100 text-green-600 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+              >
+                수정
+              </button>
+            </div>
+          </div>
+        </CardContainer>
 
-              <div className="pt-1">
-                <button onClick={handleEdit} className="btn-primary w-full">
-                  <span className="mr-2">✏️</span>
-                  차량번호 수정하기
-                </button>
+        {/* 즐겨찾기 카드 */}
+        <CardContainer>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <span className="text-xl">⭐</span>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-800">즐겨찾기</h2>
+                <p className="text-sm text-gray-500">자주 도움을 주는 사람들</p>
               </div>
             </div>
-          )}
+            <button
+              onClick={() => setShowFavoriteModal(true)}
+              className="bg-yellow-50 hover:bg-yellow-100 text-yellow-600 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+            >
+              관리
+            </button>
+          </div>
 
-          {isEditing && (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-1">
-                  사원번호
-                </label>
-                <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
-                  {user.memberLoginId}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  사원번호는 변경할 수 없습니다.
-                </p>
+          <div className="space-y-3">
+            {favoriteMembers && favoriteMembers.length > 0 ? (
+              // 즐겨찾기가 있는 경우 - 오름차순 정렬
+              favoriteMembers
+                .sort((a, b) =>
+                  a.favoriteMemberName.localeCompare(b.favoriteMemberName)
+                )
+                .map((favorite) => (
+                  <div
+                    key={favorite.favoriteMemberId}
+                    className="flex items-center justify-between py-3 px-4 bg-yellow-50 rounded-lg border border-yellow-200"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center">
+                        <span className="text-base font-medium">
+                          {favorite.favoriteMemberName.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-800 text-base">
+                          {favorite.favoriteMemberName}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {favorite.carNumber}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              // 즐겨찾기가 없는 경우
+              <div className="text-center py-6 text-gray-500 text-base">
+                즐겨찾기된 사용자가 없습니다
               </div>
-
-              <div>
-                <label className="block text-gray-700 font-semibold mb-1">
-                  이름
-                </label>
-                <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed">
-                  {user.memberName}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  이름은 변경할 수 없습니다.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-gray-700 font-semibold mb-1">
-                  차량번호 <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={editData.carNumber}
-                  onChange={handleCarNumberChange}
-                  className={`input-field ${
-                    carNumberError ? 'border-red-500 bg-red-50' : ''
-                  }`}
-                  placeholder="12가3456"
-                />
-                {carNumberError && (
-                  <p className="text-xs text-red-500 mt-1">{carNumberError}</p>
-                )}
-                <p className="text-xs text-gray-500 mt-1">
-                  형식: 숫자2-3자리 + 한글1자리 + 숫자4자리 (예: 12가3456,
-                  123나4567)
-                </p>
-              </div>
-
-              <div className="flex gap-3 pt-1">
-                <button onClick={handleCancel} className="btn-outline flex-1">
-                  취소
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={!isCarNumberChanged || isPending}
-                  className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isPending ? '저장 중...' : '저장하기'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </CardContainer>
       </div>
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -294,7 +293,9 @@ const MyPage: React.FC = () => {
                 <span className="text-3xl">👋</span>
               </div>
               <h2 className="text-xl font-bold text-gray-800 mb-3">로그아웃</h2>
-              <p className="text-gray-600 mb-8">정말 로그아웃 하시겠습니까?</p>
+              <p className="text-gray-600 mb-8 text-base">
+                정말 로그아웃 하시겠습니까?
+              </p>
 
               <div className="flex gap-3">
                 <button
@@ -311,6 +312,99 @@ const MyPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 편집 모달 */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
+            <div className="p-8">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">✏️</span>
+                </div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  차량번호 수정
+                </h2>
+                <p className="text-gray-600 text-base">
+                  차량번호를 수정할 수 있습니다
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2 text-base">
+                    사원번호
+                  </label>
+                  <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed text-base">
+                    {user.memberLoginId}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    사원번호는 변경할 수 없습니다.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2 text-base">
+                    이름
+                  </label>
+                  <div className="input-field bg-gray-100 text-gray-500 cursor-not-allowed text-base">
+                    {user.memberName}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    이름은 변경할 수 없습니다.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2 text-base">
+                    차량번호 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editData.carNumber}
+                    onChange={handleCarNumberChange}
+                    className={`input-field text-base ${
+                      carNumberError ? 'border-red-500 bg-red-50' : ''
+                    }`}
+                    placeholder="12가3456"
+                  />
+                  {carNumberError && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {carNumberError}
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-500 mt-1">
+                    형식: 숫자2-3자리 + 한글1자리 + 숫자4자리 (예: 12가3456,
+                    123나4567)
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button onClick={handleCancel} className="btn-outline flex-1">
+                    취소
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={!isCarNumberChanged || isPending}
+                    className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isPending ? '저장 중...' : '저장하기'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 즐겨찾기 관리 모달 */}
+      <FavoriteModal
+        isOpen={showFavoriteModal}
+        onClose={() => setShowFavoriteModal(false)}
+        favoriteMembers={favoriteMembers ?? []}
+        favoritesLoading={favoritesLoading}
+        memberId={user?.memberId ?? 0}
+      />
     </div>
   );
 };

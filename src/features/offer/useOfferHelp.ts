@@ -39,6 +39,20 @@ export interface OfferHelpResponse {
   slackThreadTs: string | null;
 }
 
+/**
+ * 도움 완료 요청 타입 정의
+ */
+export interface CompleteHelpOfferRequest {
+  helperMemId: number;
+  requesters: {
+    requesterId: number;
+    discountApplyType: ServiceType;
+  }[];
+}
+
+/**
+ * 도움 제안 업데이트 요청 타입 정의
+ */
 export interface UpdateOfferHelpData {
   status: ParkingStatusType;
   helpOfferDetail: {
@@ -99,6 +113,29 @@ export const useUpdateOfferHelp = () => {
     },
     onError: (error) => {
       console.error('도움 요청 업데이트 실패:', error);
+    },
+  });
+};
+
+/**
+ * 도움 완료 요청 타입 정의
+ */
+export const useCompleteHelpOffer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CompleteHelpOfferRequest) =>
+      postData('/HelpOffer/Complete', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['offer-help'] });
+      queryClient.invalidateQueries({ queryKey: ['my-info'] });
+      queryClient.invalidateQueries({ queryKey: ['ranking'] });
+    },
+    onError: (error: any) => {
+      console.error(
+        '도움 완료 처리 실패:',
+        error.response?.data || error.message
+      );
     },
   });
 };

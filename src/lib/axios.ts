@@ -12,6 +12,37 @@ const apiClient = axios.create({
   },
 });
 
+// 응답 인터셉터 - 서버 에러 시 로그인 페이지로 리다이렉트
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // 404 에러는 완전히 무시하고 아무것도 출력하지 않음
+    if (error?.response?.status === 404) {
+      // 404 에러는 조용히 reject만 하고 아무것도 출력하지 않음
+      return Promise.reject(error);
+    }
+
+    // 다른 에러만 콘솔에 출력
+    console.error('API 요청 실패:', error);
+
+    // 현재 페이지가 로그인 페이지가 아닐 때만 리다이렉트
+    const currentPath = window.location.pathname;
+    if (
+      currentPath !== '/login' &&
+      (error.response?.status === 500 ||
+        error.code === 'NETWORK_ERROR' ||
+        error.message?.includes('Network Error'))
+    ) {
+      // 로그아웃 처리
+      localStorage.removeItem('parking_user');
+
+      window.location.href = '/login';
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 /**
  * POST 요청을 위한 기본 함수
  * @param url - 요청 URL
@@ -60,7 +91,13 @@ export const getData = async <T = any>(
     } else {
       throw new Error(`HTTP ${response.status}: 요청 실패`);
     }
-  } catch (error) {
+  } catch (error: any) {
+    // 404 에러는 완전히 무시하고 빈 배열 반환 (아무것도 출력하지 않음)
+    if (error?.response?.status === 404) {
+      // 404 에러는 조용히 빈 배열 반환
+      return [] as T;
+    }
+    // 다른 에러만 콘솔에 출력
     console.error('GET 요청 실패:', error);
     throw error;
   }

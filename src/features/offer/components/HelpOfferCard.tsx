@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import {
-  useUpdateOfferHelp,
-  type OfferHelpResponse,
-} from '../offer/useOfferHelp';
-import { formatToKoreanTime } from '../../shared/utils/formatToKoreanTime';
-import { useToast } from '../../shared/components/ui/Toast';
-import { ParkingStatus } from '../../shared/types/parkingStatus';
-import { Service } from '../../shared/types/servieType';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useUpdateOfferHelp, type OfferHelpResponse } from '../useOfferHelp';
+import { formatToKoreanTime } from '../../../shared/utils/formatToKoreanTime';
+import { useToast } from '../../../shared/components/ui/Toast';
+import { ParkingStatus } from '../../../shared/types/parkingStatus';
+import { Service } from '../../../shared/types/servieType';
 
 interface Props {
   offer: OfferHelpResponse;
@@ -103,10 +100,12 @@ const HelpOfferCard: React.FC<Props> = ({ offer }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-            <span className="text-sm">👤</span>
+            <span className="text-sm">
+              {(offer.helper?.name || '사용자').charAt(0)}
+            </span>
           </div>
           <span className="font-semibold text-gray-800">
-            {offer.helper?.name || '익명'}
+            {offer.helper?.name || '사용자'}
           </span>
         </div>
         <div className="flex items-center gap-1 text-gray-500 text-sm">

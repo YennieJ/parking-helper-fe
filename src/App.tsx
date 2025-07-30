@@ -43,7 +43,7 @@ const AppContent: React.FC = () => {
       <div className="flex-1 pb-20 ">
         <Routes>
           <Route path="/" element={<HomePage />} />
-
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/request" element={<RequestPage />} />
           <Route path="/offer" element={<OfferPage />} />
           <Route path="/my-page" element={<MyPage />} />

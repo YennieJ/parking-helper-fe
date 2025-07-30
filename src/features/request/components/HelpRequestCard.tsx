@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { ParkingStatus } from '../../shared/types/parkingStatus';
-import { type RequestHelp } from './useRequestHelp';
-import { formatToKoreanTime } from '../../shared/utils/formatToKoreanTime';
-import { useToast } from '../../shared/components/ui/Toast';
-import { MESSAGES } from '../../shared/utils/messages';
-import { useUpdateRequestHelpDetail } from '../requestDetail/useRequestHelpDetail';
-import { Service } from '../../shared/types/servieType';
+import { useAuth } from '../../../contexts/AuthContext';
+import { ParkingStatus } from '../../../shared/types/parkingStatus';
+import { type RequestHelp } from '../useRequestHelp';
+import { formatToKoreanTime } from '../../../shared/utils/formatToKoreanTime';
+import { useToast } from '../../../shared/components/ui/Toast';
+import { MESSAGES } from '../../../shared/utils/messages';
+import { useUpdateRequestHelpDetail } from '../../requestDetail/useRequestHelpDetail';
+import { Service } from '../../../shared/types/servieType';
 
 interface Props {
   request: RequestHelp;
@@ -26,7 +26,9 @@ const HelpRequestCard: React.FC<Props> = ({ request }) => {
     isCancelingAcceptance: false,
   });
 
-  const requestCount = request.totalDisCount - request.applyDisCount; // 남은 요청 건수
+  const requestCount = request.helpDetails.filter(
+    (detail) => detail.reqDetailStatus === ParkingStatus.WAITING
+  ).length; // 대기 중인 요청 건수
   const maxHelpCount = Math.min(requestCount, 3); // 최대 도움 가능 건수
 
   // 도움 요청 수락 처리
@@ -80,7 +82,9 @@ const HelpRequestCard: React.FC<Props> = ({ request }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-            <span className="text-sm">👤</span>
+            <span className="text-sm">
+              {(request.helpRequester?.helpRequesterName || '익명').charAt(0)}
+            </span>
           </div>
           <span className="font-semibold text-gray-800">
             {request.helpRequester?.helpRequesterName || '익명'}

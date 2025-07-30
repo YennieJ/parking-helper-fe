@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getData } from '../../lib/axios';
-import apiClient from '../../lib/axios';
+import { getData, putData } from '../../lib/axios';
 import { useAuth } from '../../contexts/AuthContext';
 
 /**
@@ -94,6 +93,7 @@ export interface MemberDetail {
     helperServiceDate: string | null;
     discountTotalCount: number;
     discountApplyCount: number;
+    helpOfferType: 'offerOnly' | 'ImmediateComplete';
     helpOfferDetail: Array<{
       id: number;
       helpRequester: {
@@ -139,7 +139,6 @@ interface MemberQueryParams {
   memberLoginId?: string;
   memberName?: string;
   carNumber?: string;
-  Status?: string;
 }
 
 /**
@@ -209,8 +208,7 @@ export const useUpdateMember = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: UpdateMemberParams) => {
-      const response = await apiClient.put(`/Member/${id}`, data);
-      return response.data;
+      return await putData(`/Member/${id}`, data);
     },
     onSuccess: (_data, variables) => {
       // 성공 시 관련 쿼리 무효화

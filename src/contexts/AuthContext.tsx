@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 /**
  * 사용자 정보 인터페이스
  */
-interface User {
+export interface User {
   memberId: number;
   memberLoginId: string;
   memberName: string;

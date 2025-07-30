@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRanking } from './useRanking';
+import { useRanking } from '../useRanking';
 
 interface Props {
   onClose: () => void;
@@ -109,39 +109,35 @@ const RankingModal: React.FC<Props> = ({ onClose }) => {
                       : 'bg-white border-gray-200 hover:bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                  <div className="flex items-baseline justify-between">
+                    <div className="flex items-baseline gap-3">
                       {/* 등수 이모지 */}
-                      <div className="text-2xl">
+                      <div className="text-2xl leading-none">
                         {getRankEmoji(ranking.actualRank)}
                       </div>
-
                       {/* 사용자 정보 */}
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-bold text-gray-900">
-                            {ranking.memberName}
-                          </span>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium border ${getRankBadgeColor(
-                              ranking.actualRank
-                            )}`}
-                          >
-                            {ranking.displayRank}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          총 {ranking.totalHelpCount}건 도움
-                        </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-bold text-gray-900 text-base leading-none">
+                          {ranking.memberName}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getRankBadgeColor(
+                            ranking.actualRank
+                          )}`}
+                          style={{ verticalAlign: 'middle' }}
+                        >
+                          {ranking.displayRank}
+                        </span>
                       </div>
                     </div>
-
                     {/* 점수 */}
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-right flex items-baseline gap-1">
+                      <span className="text-2xl font-bold text-blue-600 leading-none">
                         {ranking.totalHelpCount}
-                      </div>
-                      <div className="text-xs text-gray-500">건</div>
+                      </span>
+                      <span className="text-xs text-gray-500 leading-none">
+                        건
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -26,6 +26,8 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const memberLoginId = employeeNumber.trim();
+
     if (!employeeNumber) {
       setError('사원번호를 입력해주세요.');
       return;
@@ -34,7 +36,7 @@ const LoginPage: React.FC = () => {
     setLoggingIn(true);
     try {
       await loginMutation.mutateAsync({
-        memberLoginId: employeeNumber,
+        memberLoginId: memberLoginId,
       });
 
       // 성공 메시지 표시

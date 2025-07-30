@@ -2,9 +2,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRequestHelp } from '../features/request/useRequestHelp';
 import { useState } from 'react';
 import { useToast } from '../shared/components/ui/Toast';
-import HelpRequestCard from '../features/request/HelpRequestCard';
+import HelpRequestCard from '../features/request/components/HelpRequestCard';
 import Header from '../shared/components/layout/Header';
-import AddRequestModal from '../features/request/AddRequestModal';
+import AddRequestModal from '../features/request/components/AddRequestModal';
+import CardContainer from '../shared/components/ui/CardContiner';
 
 const RequestPage = ({}) => {
   const { data: helpRequests, isLoading, error } = useRequestHelp();
@@ -71,7 +72,7 @@ const RequestPage = ({}) => {
 
       <div className="px-4 py-4 md:max-w-[700px] mx-auto space-y-4">
         {/* 현재 도움 요청 현황 */}
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <CardContainer>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
               <span className="text-xl">🆘</span>
@@ -108,7 +109,7 @@ const RequestPage = ({}) => {
               ) : null;
             })()}
           </div>
-        </div>
+        </CardContainer>
       </div>
 
       {/* 모달 */}

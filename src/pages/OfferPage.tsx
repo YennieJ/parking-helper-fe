@@ -1,10 +1,11 @@
 import { useAuth } from '../contexts/AuthContext';
 
 import { useState } from 'react';
-import HelpOfferCard from '../features/parking/HelpOfferCard';
-import AddOfferModal from '../features/parking/AddOfferModal';
+import HelpOfferCard from '../features/offer/components/HelpOfferCard';
+import AddOfferModal from '../features/offer/components/AddOfferModal';
 import Header from '../shared/components/layout/Header';
 import { useOfferHelp } from '../features/offer/useOfferHelp';
+import CardContainer from '../shared/components/ui/CardContiner';
 
 const OfferPage = ({}) => {
   const { data: helpOffers, isLoading, error } = useOfferHelp();
@@ -61,7 +62,7 @@ const OfferPage = ({}) => {
 
       <div className="px-4 py-4 md:max-w-[700px] mx-auto space-y-4">
         {/* 현재 도움 제안 현황 */}
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <CardContainer>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
               <span className="text-xl"> 😇🪽</span>
@@ -98,7 +99,7 @@ const OfferPage = ({}) => {
               ) : null;
             })()}
           </div>
-        </div>
+        </CardContainer>
       </div>
 
       {/* 모달 */}
