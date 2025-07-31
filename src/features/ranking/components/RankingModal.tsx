@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRanking } from '../useRanking';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   onClose: () => void;
@@ -7,6 +8,12 @@ interface Props {
 
 const RankingModal: React.FC<Props> = ({ onClose }) => {
   const { data: rankings, isLoading } = useRanking();
+  const queryClient = useQueryClient();
+
+  // 모달이 열릴 때 랭킹 데이터 새로 불러오기
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['ranking'] });
+  }, [queryClient]);
 
   // 랭킹 데이터 처리 (공동 등수 포함)
   const processedRankings = React.useMemo(() => {

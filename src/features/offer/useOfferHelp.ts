@@ -107,9 +107,14 @@ export const useUpdateOfferHelp = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateOfferHelpData }) =>
       putData(`/HelpOffer/${id}`, data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['offer-help'] });
       queryClient.invalidateQueries({ queryKey: ['my-info'] });
+
+      // 완료 처리인 경우 랭킹도 업데이트
+      if (variables.data.status === 'Completed') {
+        queryClient.invalidateQueries({ queryKey: ['ranking'] });
+      }
     },
     onError: (error) => {
       console.error('도움 요청 업데이트 실패:', error);

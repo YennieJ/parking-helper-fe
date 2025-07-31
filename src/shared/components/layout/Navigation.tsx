@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * 네비게이션 컴포넌트
@@ -10,6 +11,7 @@ const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   /**
@@ -27,6 +29,17 @@ const Navigation: React.FC = () => {
   const handleNavigation = (path: string) => {
     // 스크롤을 최상단으로 이동
     window.scrollTo(0, 0);
+
+    // 페이지별 쿼리 업데이트
+    switch (path) {
+      case '/request':
+        queryClient.invalidateQueries({ queryKey: ['request-help'] });
+        break;
+      case '/offer':
+        queryClient.invalidateQueries({ queryKey: ['offer-help'] });
+        break;
+    }
+
     // 페이지 이동
     navigate(path);
   };

@@ -9,6 +9,7 @@ import { ParkingStatus } from '../../../shared/types/parkingStatus';
 import { useToast } from './Toast';
 import type { User } from '../../../contexts/AuthContext';
 import CompleteConfirmationModal from './CompleteConfirmationModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 // 태스크 타입 enum 정의
 const TaskType = {
@@ -21,6 +22,7 @@ export const UrgentTasksCard = ({ user }: { user: User | null }) => {
   const { data: requestHelpData } = useRequestHelp();
   const updateRequestHelpDetail = useUpdateRequestHelpDetail();
   const updateOfferHelp = useUpdateOfferHelp();
+  const queryClient = useQueryClient();
 
   // 일괄 처리를 위한 상태
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
@@ -208,6 +210,9 @@ export const UrgentTasksCard = ({ user }: { user: User | null }) => {
         '도움 완료',
         `${totalTasks}개의 도움 요청이 성공적으로 처리되었습니다.`
       );
+
+      // 일괄 처리 완료 후 랭킹 업데이트
+      queryClient.invalidateQueries({ queryKey: ['ranking'] });
     } catch (error) {
       // 실패 처리
       showError('도움 실패', '일부 도움 요청 처리 중 오류가 발생했습니다.');

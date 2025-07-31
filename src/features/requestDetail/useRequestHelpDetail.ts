@@ -31,10 +31,15 @@ export const useUpdateRequestHelpDetail = () => {
         `/RequestHelp/ReqHelpDetail/${data.detailId}?${params.toString()}`
       );
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       // 관련 쿼리들 무효화
       queryClient.invalidateQueries({ queryKey: ['request-help'] });
       queryClient.invalidateQueries({ queryKey: ['my-info'] });
+
+      // 완료 처리인 경우 랭킹도 업데이트
+      if (variables.reqDetailStatus === 'Completed') {
+        queryClient.invalidateQueries({ queryKey: ['ranking'] });
+      }
     },
     onError: (error) => {
       console.error('도움 요청 상세 업데이트 실패:', error);
